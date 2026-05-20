@@ -4,10 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 
 const navLinks = [
-  { label: "Services", href: "#services" },
-  { label: "Projects", href: "#projects" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Services", href: "/#services" },
+  { label: "Process", href: "/#process" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
@@ -15,14 +15,14 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744]/95 backdrop-blur-sm border-b border-white/10">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-18 py-4">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 bg-[#c8922a] rounded flex items-center justify-center font-display font-bold text-white text-lg leading-none">
             EP
           </div>
           <div className="flex flex-col">
-            <span className="font-display font-700 text-white text-base leading-tight tracking-wide">
+            <span className="font-display font-bold text-white text-base leading-tight tracking-wide">
               Emerson Park
             </span>
             <span className="text-[#c8922a] text-xs font-medium tracking-widest uppercase">
@@ -46,12 +46,12 @@ export default function Navbar() {
         </ul>
 
         {/* CTA */}
-        <a
-          href="#contact"
+        <Link
+          href="/quiz"
           className="hidden md:inline-flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white text-sm font-semibold px-5 py-2.5 rounded transition-colors duration-200"
         >
-          Get a Free Estimate
-        </a>
+          Take the Style Quiz
+        </Link>
 
         {/* Mobile menu button */}
         <button
@@ -59,26 +59,11 @@ export default function Navbar() {
           className="md:hidden text-white p-2"
           aria-label="Toggle menu"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {open ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
             )}
           </svg>
         </button>
@@ -100,13 +85,13 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <a
-            href="#contact"
+          <Link
+            href="/quiz"
             onClick={() => setOpen(false)}
             className="mt-4 block text-center bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold px-5 py-3 rounded transition-colors"
           >
-            Get a Free Estimate
-          </a>
+            Take the Style Quiz
+          </Link>
         </div>
       )}
     </header>
