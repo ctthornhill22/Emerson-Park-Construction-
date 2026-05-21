@@ -2,20 +2,20 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1a2744] text-white">
+    <footer className="bg-[#1C1A15] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 bg-[#c8922a] rounded flex items-center justify-center font-bold text-white text-lg">
+              <div className="w-9 h-9 bg-[#9B6B38] rounded flex items-center justify-center font-bold text-white text-lg">
                 EP
               </div>
               <div>
                 <div className="font-display font-bold text-white leading-tight">
                   Emerson Park
                 </div>
-                <div className="text-[#c8922a] text-xs tracking-widest uppercase">
+                <div className="text-[#9B6B38] text-xs tracking-widest uppercase">
                   Construction
                 </div>
               </div>
@@ -28,7 +28,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-[#c8922a] mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-[#9B6B38] mb-4">
               Quick Links
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
@@ -36,7 +36,7 @@ export default function Footer() {
                 <li key={item}>
                   <a
                     href={`#${item.toLowerCase()}`}
-                    className="hover:text-[#c8922a] transition-colors"
+                    className="hover:text-[#9B6B38] transition-colors"
                   >
                     {item}
                   </a>
@@ -47,14 +47,14 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-[#c8922a] mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-[#9B6B38] mb-4">
               Contact
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
               <li>
                 <a
                   href="mailto:info@buildemersonpark.com"
-                  className="hover:text-[#c8922a] transition-colors"
+                  className="hover:text-[#9B6B38] transition-colors"
                 >
                   info@buildemersonpark.com
                 </a>
@@ -62,7 +62,7 @@ export default function Footer() {
               <li>
                 <a
                   href="tel:+1-555-000-0000"
-                  className="hover:text-[#c8922a] transition-colors"
+                  className="hover:text-[#9B6B38] transition-colors"
                 >
                   (555) 000-0000
                 </a>

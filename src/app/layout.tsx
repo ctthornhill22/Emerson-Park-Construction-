@@ -1,25 +1,27 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+const jost = Jost({
+  variable: "--font-jost",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Emerson Park Construction | Quality Building & Renovation",
+    default: "Emerson Park Construction | Custom Home Builder Ocala FL",
     template: "%s | Emerson Park Construction",
   },
   description:
-    "Emerson Park Construction delivers quality residential and commercial construction, renovation, and remodeling services. Built right. Built to last.",
+    "Emerson Park Construction crafts custom homes with a style-first approach. Discover your architectural direction with our Home Style Discovery Quiz before we ever meet.",
   metadataBase: new URL("https://buildemersonpark.com"),
   openGraph: {
     type: "website",
@@ -37,9 +39,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${montserrat.variable} h-full scroll-smooth antialiased`}
+      className={`${cormorant.variable} ${jost.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-zinc-900">
+      <body className="min-h-full flex flex-col bg-[#F5EFE4] text-[#3D3226]">
         {children}
       </body>
     </html>
