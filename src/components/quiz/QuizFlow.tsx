@@ -135,11 +135,11 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
   const isFirstQuestion = currentSection === 0 && currentQuestionIndex === 0;
 
   return (
-    <div ref={topRef} className="min-h-screen bg-[#1a2744]">
+    <div ref={topRef} className="min-h-screen bg-[#F5EFE4]">
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-white/10">
+      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-[#EDE5D4]">
         <div
-          className="h-full bg-[#c8922a] transition-all duration-500"
+          className="h-full bg-[#9B6B38] transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -152,10 +152,10 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
               key={idx}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
                 idx < currentSection
-                  ? "bg-[#c8922a]"
+                  ? "bg-[#9B6B38]"
                   : idx === currentSection
-                  ? "bg-[#c8922a]/60"
-                  : "bg-white/10"
+                  ? "bg-[#9B6B38]/60"
+                  : "bg-[#EDE5D4]"
               }`}
             />
           ))}
@@ -163,12 +163,12 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
 
         {/* Section label */}
         <div className="mb-8">
-          <span className="text-[#c8922a] text-xs font-semibold uppercase tracking-widest">
+          <span className="text-[#9B6B38] text-xs font-semibold uppercase tracking-widest">
             Section {currentSection + 1} of {allSections.length} —{" "}
             {currentSectionData.title}
           </span>
           {!isContactSection && currentQuestion && (
-            <div className="text-white/40 text-xs mt-1">
+            <div className="text-[#78716C] text-xs mt-1">
               Question {currentQuestionIndex + 1} of {sectionQuestions.length}
             </div>
           )}
@@ -185,24 +185,24 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
         ) : currentQuestion ? (
           <div>
             {/* Question */}
-            <h2 className="font-display font-bold text-white text-2xl sm:text-3xl leading-tight mb-2">
+            <h2 className="font-display font-bold text-[#1C1A15] text-2xl sm:text-3xl leading-tight mb-2">
               {currentQuestion.clientPrompt}
             </h2>
             {currentQuestion.answerType === "multi-select" && (
-              <p className="text-white/50 text-sm mb-8">
+              <p className="text-[#78716C] text-sm mb-8">
                 Select all that apply
               </p>
             )}
             {currentQuestion.answerType === "multi-select-limited" && (
-              <p className="text-white/50 text-sm mb-8">
+              <p className="text-[#78716C] text-sm mb-8">
                 Select up to {currentQuestion.maxSelections}
               </p>
             )}
             {currentQuestion.answerType === "single-select" && (
-              <p className="text-white/50 text-sm mb-8">Choose one</p>
+              <p className="text-[#78716C] text-sm mb-8">Choose one</p>
             )}
             {(currentQuestion.answerType === "text") && (
-              <p className="text-white/50 text-sm mb-8">
+              <p className="text-[#78716C] text-sm mb-8">
                 Your own words — this helps us personalize your results
               </p>
             )}
@@ -214,7 +214,7 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
                 value={textAnswer}
                 onChange={(e) => setTextAnswer(e.target.value)}
                 placeholder={currentQuestion.placeholder || "Type your answer here…"}
-                className="w-full bg-white/5 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/30 text-base focus:outline-none focus:border-[#c8922a] transition-colors resize-none mb-8"
+                className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-xl px-5 py-4 text-[#1C1A15] placeholder-[#78716C] text-base focus:outline-none focus:border-[#9B6B38] transition-colors resize-none mb-8"
               />
             ) : (
               /* Option grid */
@@ -239,31 +239,32 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
                       }
                       className={`relative group text-left rounded-xl overflow-hidden border-2 transition-all duration-200 ${
                         selected
-                          ? "border-[#c8922a] shadow-lg shadow-[#c8922a]/20"
-                          : "border-white/10 hover:border-white/30"
+                          ? "border-[#9B6B38] shadow-lg shadow-[#9B6B38]/20"
+                          : "border-[#EDE5D4] hover:border-[#9B6B38]/40"
                       }`}
                     >
                       {/* Gradient bg */}
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br ${option.gradient} opacity-${selected ? "30" : "15"} transition-opacity group-hover:opacity-25`}
+                        className={`absolute inset-0 bg-gradient-to-br ${option.gradient} opacity-${selected ? "20" : "10"} transition-opacity group-hover:opacity-15`}
                       />
+                      <div className="absolute inset-0 bg-[#FDFAF5]" style={{ opacity: selected ? 0.85 : 0.9 }} />
 
                       <div className="relative p-4 sm:p-5">
                         <div className="text-2xl mb-2">{option.emoji}</div>
                         <div
                           className={`font-display font-semibold text-sm leading-tight mb-1 transition-colors ${
-                            selected ? "text-[#c8922a]" : "text-white"
+                            selected ? "text-[#9B6B38]" : "text-[#1C1A15]"
                           }`}
                         >
                           {option.label}
                         </div>
                         {option.description && (
-                          <div className="text-white/50 text-xs leading-relaxed">
+                          <div className="text-[#78716C] text-xs leading-relaxed">
                             {option.description}
                           </div>
                         )}
                         {selected && (
-                          <div className="absolute top-3 right-3 w-5 h-5 bg-[#c8922a] rounded-full flex items-center justify-center">
+                          <div className="absolute top-3 right-3 w-5 h-5 bg-[#9B6B38] rounded-full flex items-center justify-center">
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                             </svg>
@@ -281,7 +282,7 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
               <button
                 onClick={handleBack}
                 disabled={isFirstQuestion}
-                className="flex items-center gap-2 text-white/50 hover:text-white text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 text-[#78716C] hover:text-[#1C1A15] text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -291,7 +292,7 @@ export default function QuizFlow({ onComplete }: QuizFlowProps) {
 
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors duration-200"
+                className="flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-[#FDFAF5] font-semibold text-sm px-6 py-3 rounded-lg transition-colors duration-200"
               >
                 {currentSection === allSections.length - 2 &&
                 currentQuestionIndex === sectionQuestions.length - 1
@@ -327,10 +328,10 @@ function ContactSection({
 
   return (
     <div>
-      <h2 className="font-display font-bold text-white text-2xl sm:text-3xl leading-tight mb-2">
+      <h2 className="font-display font-bold text-[#1C1A15] text-2xl sm:text-3xl leading-tight mb-2">
         Where should we send your personalized home style summary?
       </h2>
-      <p className="text-white/50 text-sm mb-8">
+      <p className="text-[#78716C] text-sm mb-8">
         Complete your profile and we'll prepare a personalized design direction
         and have someone reach out to schedule your discovery meeting.
       </p>
@@ -338,97 +339,97 @@ function ContactSection({
       <div className="space-y-4 mb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">First Name *</label>
+            <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">First Name *</label>
             <input
               type="text"
               value={contactInfo.firstName}
               onChange={(e) => update("firstName", e.target.value)}
               placeholder="Jane"
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+              className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
             />
           </div>
           <div>
-            <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Last Name</label>
+            <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Last Name</label>
             <input
               type="text"
               value={contactInfo.lastName}
               onChange={(e) => update("lastName", e.target.value)}
               placeholder="Smith"
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+              className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Email Address *</label>
+          <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Email Address *</label>
           <input
             type="email"
             value={contactInfo.email}
             onChange={(e) => update("email", e.target.value)}
             placeholder="jane@example.com"
-            className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+            className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Phone Number</label>
+          <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Phone Number</label>
           <input
             type="tel"
             value={contactInfo.phone}
             onChange={(e) => update("phone", e.target.value)}
             placeholder="(555) 000-0000"
-            className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+            className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Desired Build Location or Area</label>
+          <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Desired Build Location or Area</label>
           <input
             type="text"
             value={contactInfo.buildLocation}
             onChange={(e) => update("buildLocation", e.target.value)}
             placeholder="e.g. Ocala, FL or Marion County"
-            className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+            className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Best Way to Contact You</label>
+            <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Best Way to Contact You</label>
             <select
               value={contactInfo.bestContact}
               onChange={(e) => update("bestContact", e.target.value)}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+              className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
             >
-              <option value="" className="bg-[#1a2744]">Select…</option>
-              <option value="email" className="bg-[#1a2744]">Email</option>
-              <option value="phone" className="bg-[#1a2744]">Phone Call</option>
-              <option value="text" className="bg-[#1a2744]">Text Message</option>
+              <option value="" style={{ background: "#F5EFE4" }}>Select…</option>
+              <option value="email" style={{ background: "#F5EFE4" }}>Email</option>
+              <option value="phone" style={{ background: "#F5EFE4" }}>Phone Call</option>
+              <option value="text" style={{ background: "#F5EFE4" }}>Text Message</option>
             </select>
           </div>
           <div>
-            <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Preferred Meeting Type</label>
+            <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Preferred Meeting Type</label>
             <select
               value={contactInfo.meetingType}
               onChange={(e) => update("meetingType", e.target.value)}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c8922a] transition-colors"
+              className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"
             >
-              <option value="" className="bg-[#1a2744]">Select…</option>
-              <option value="phone" className="bg-[#1a2744]">Phone Call</option>
-              <option value="video" className="bg-[#1a2744]">Video Call</option>
-              <option value="in-person" className="bg-[#1a2744]">In Person</option>
+              <option value="" style={{ background: "#F5EFE4" }}>Select…</option>
+              <option value="phone" style={{ background: "#F5EFE4" }}>Phone Call</option>
+              <option value="video" style={{ background: "#F5EFE4" }}>Video Call</option>
+              <option value="in-person" style={{ background: "#F5EFE4" }}>In Person</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label className="block text-white/60 text-xs mb-1.5 font-medium uppercase tracking-wide">Anything Else You'd Like Us to Know?</label>
+          <label className="block text-[#78716C] text-xs mb-1.5 font-medium uppercase tracking-wide">Anything Else You&apos;d Like Us to Know?</label>
           <textarea
             rows={3}
             value={contactInfo.anythingElse}
             onChange={(e) => update("anythingElse", e.target.value)}
             placeholder="Tell us anything that would help us prepare for your discovery conversation…"
-            className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors resize-none"
+            className="w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] placeholder-[#78716C] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors resize-none"
           />
         </div>
       </div>
@@ -436,7 +437,7 @@ function ContactSection({
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white/50 hover:text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 text-[#78716C] hover:text-[#1C1A15] text-sm font-medium transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -447,7 +448,7 @@ function ContactSection({
         <button
           onClick={onSubmit}
           disabled={!isValid}
-          className="flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm px-8 py-3 rounded-lg transition-colors duration-200"
+          className="flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] disabled:opacity-40 disabled:cursor-not-allowed text-[#FDFAF5] font-semibold text-sm px-8 py-3 rounded-lg transition-colors duration-200"
         >
           Get My Style Results →
         </button>

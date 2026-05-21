@@ -54,8 +54,8 @@ export default function QuizIntroPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative bg-[#1a2744] pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#c8922a]" />
+      <section className="relative bg-[#1C1A15] pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#9B6B38]" />
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%">
             <defs>
@@ -68,30 +68,30 @@ export default function QuizIntroPage() {
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-[#c8922a]/20 border border-[#c8922a]/40 rounded-full px-4 py-1.5 mb-6">
-            <span className="w-2 h-2 bg-[#c8922a] rounded-full animate-pulse"/>
-            <span className="text-[#c8922a] text-sm font-medium">Free — No Obligation</span>
+          <div className="inline-flex items-center gap-2 bg-[#9B6B38]/20 border border-[#9B6B38]/40 rounded-full px-4 py-1.5 mb-6">
+            <span className="w-2 h-2 bg-[#9B6B38] rounded-full animate-pulse"/>
+            <span className="text-[#9B6B38] text-sm font-medium">Free — No Obligation</span>
           </div>
 
-          <h1 className="font-display font-extrabold text-white text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight mb-6">
+          <h1 className="font-display font-bold text-[#F5EFE4] text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight mb-6">
             Discover the Style of<br />
-            <span className="text-[#c8922a]">Your New Home</span>
+            <span className="text-[#9B6B38]">Your New Home</span>
           </h1>
 
-          <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-6 max-w-2xl mx-auto">
+          <p className="text-[#F5EFE4]/70 text-lg sm:text-xl leading-relaxed mb-6 max-w-2xl mx-auto">
             Our Home Style Discovery Quiz helps you identify your architectural
             direction, finish preferences, and lifestyle priorities — so your
             builder can prepare a truly personalized design direction before
             your first meeting.
           </p>
 
-          <p className="text-white/40 text-sm mb-10">
+          <p className="text-[#F5EFE4]/40 text-sm mb-10">
             76 visual questions · 10–15 minutes · Personalized results
           </p>
 
           <Link
             href="/quiz/discover"
-            className="inline-flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-bold text-lg px-10 py-5 rounded-lg transition-colors duration-200"
+            className="inline-flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold text-lg px-10 py-5 rounded-lg transition-colors duration-200"
           >
             Start the Quiz
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,21 +102,21 @@ export default function QuizIntroPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 md:py-28 bg-white">
+      <section className="py-20 md:py-28 bg-[#FDFAF5]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">How It Works</span>
-            <h2 className="font-display font-bold text-[#1a2744] text-4xl mt-2">From Quiz to Keys</h2>
+            <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">How It Works</span>
+            <h2 className="font-display font-bold text-[#1C1A15] text-4xl mt-2">From Quiz to Keys</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step) => (
               <div key={step.number} className="relative">
-                <div className="text-5xl font-display font-extrabold text-[#c8922a]/20 mb-3 leading-none">
+                <div className="text-5xl font-display font-bold text-[#9B6B38]/20 mb-3 leading-none">
                   {step.number}
                 </div>
-                <h3 className="font-display font-bold text-[#1a2744] text-lg mb-2">{step.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{step.description}</p>
+                <h3 className="font-display font-bold text-[#1C1A15] text-lg mb-2">{step.title}</h3>
+                <p className="text-[#78716C] text-sm leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
@@ -124,12 +124,12 @@ export default function QuizIntroPage() {
       </section>
 
       {/* Style Preview */}
-      <section className="py-20 md:py-28 bg-[#f5f0e8]">
+      <section className="py-20 md:py-28 bg-[#EDE5D4]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">10 Architectural Directions</span>
-            <h2 className="font-display font-bold text-[#1a2744] text-4xl mt-2">Which One Speaks to You?</h2>
-            <p className="text-zinc-500 text-lg mt-4 max-w-xl mx-auto">
+            <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">10 Architectural Directions</span>
+            <h2 className="font-display font-bold text-[#1C1A15] text-4xl mt-2">Which One Speaks to You?</h2>
+            <p className="text-[#78716C] text-lg mt-4 max-w-xl mx-auto">
               The quiz identifies your primary style direction and up to two supporting influences.
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function QuizIntroPage() {
             {styles.map((style) => (
               <div key={style.code} className="relative rounded-xl overflow-hidden group">
                 <div className={`bg-gradient-to-br ${style.gradient} aspect-square flex flex-col items-center justify-center p-4 text-center transition-transform duration-300 group-hover:scale-105`}>
-                  <div className="font-display font-extrabold text-white/20 text-3xl mb-1">{style.code}</div>
+                  <div className="font-display font-bold text-white/20 text-3xl mb-1">{style.code}</div>
                   <div className="font-display font-bold text-white text-sm leading-tight">{style.name}</div>
                   <div className="text-white/60 text-xs mt-1 leading-tight hidden sm:block">{style.description}</div>
                 </div>
@@ -149,19 +149,19 @@ export default function QuizIntroPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#1a2744] text-center">
+      <section className="py-20 bg-[#1C1A15] text-center">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display font-bold text-white text-4xl mb-4">
+          <h2 className="font-display font-bold text-[#F5EFE4] text-4xl mb-4">
             Ready to Find Your Style?
           </h2>
-          <p className="text-white/60 text-lg mb-8">
+          <p className="text-[#F5EFE4]/60 text-lg mb-8">
             Free, no pressure, no obligation. Just clarity on what you want — before you ever sit down with a builder.
           </p>
           <Link
             href="/quiz/discover"
-            className="inline-flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-bold text-lg px-10 py-5 rounded-lg transition-colors duration-200"
+            className="inline-flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold text-lg px-10 py-5 rounded-lg transition-colors duration-200"
           >
-            Take the Quiz — It's Free
+            Take the Quiz — It&apos;s Free
           </Link>
         </div>
       </section>

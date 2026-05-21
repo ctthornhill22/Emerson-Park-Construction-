@@ -93,8 +93,8 @@ export default function Home() {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center bg-[#1a2744] overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#c8922a]" />
+      <section className="relative min-h-screen flex items-center bg-[#1C1A15] overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#9B6B38]" />
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%">
             <defs>
@@ -108,33 +108,33 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-36">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-[#c8922a]/20 border border-[#c8922a]/40 rounded-full px-4 py-1.5 mb-6">
-              <span className="w-2 h-2 bg-[#c8922a] rounded-full animate-pulse" />
-              <span className="text-[#c8922a] text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-[#9B6B38]/20 border border-[#9B6B38]/40 rounded-full px-4 py-1.5 mb-6">
+              <span className="w-2 h-2 bg-[#9B6B38] rounded-full animate-pulse" />
+              <span className="text-[#9B6B38] text-sm font-medium">
                 Custom New Home Builder · Ocala, FL
               </span>
             </div>
 
-            <h1 className="font-display font-extrabold text-white text-5xl sm:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
+            <h1 className="font-display font-bold text-[#F5EFE4] text-5xl sm:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
               Start With Style.<br />
-              <span className="text-[#c8922a]">Build With Confidence.</span>
+              <span className="text-[#9B6B38]">Build With Confidence.</span>
             </h1>
 
-            <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-4 max-w-xl">
+            <p className="text-[#F5EFE4]/60 text-lg sm:text-xl leading-relaxed mb-4 max-w-xl">
               Most builders ask for your budget first. We ask about your
               style. Our Home Style Discovery Quiz identifies your
               architectural direction before we ever sit down together —
               so every meeting is personalized to you.
             </p>
 
-            <p className="text-white/40 text-sm mb-10">
+            <p className="text-[#F5EFE4]/40 text-sm mb-10">
               Free · 10–15 minutes · No obligation
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/quiz"
-                className="inline-flex items-center justify-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-bold text-base px-8 py-4 rounded transition-colors duration-200"
+                className="inline-flex items-center justify-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold text-base px-8 py-4 rounded-lg transition-colors duration-200"
               >
                 Take the Style Quiz
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ export default function Home() {
               </Link>
               <a
                 href="#process"
-                className="inline-flex items-center justify-center gap-2 border border-white/20 hover:border-white/40 text-white font-semibold text-base px-8 py-4 rounded transition-colors duration-200"
+                className="inline-flex items-center justify-center gap-2 border border-[#F5EFE4]/20 hover:border-[#F5EFE4]/40 text-[#F5EFE4] font-semibold text-base px-8 py-4 rounded-lg transition-colors duration-200"
               >
                 See How We Work
               </a>
@@ -165,19 +165,19 @@ export default function Home() {
                 </div>
               </div>
             ))}
-            <div className="text-white/30 text-xs text-center mt-1">+ 5 more styles</div>
+            <div className="text-[#F5EFE4]/30 text-xs text-center mt-1">+ 5 more styles</div>
           </div>
         </div>
 
         {/* Stats bar */}
-        <div className="absolute bottom-0 left-0 right-0 bg-[#253560] border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 bg-[#2A271F] border-t border-[#F5EFE4]/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-display font-bold text-[#c8922a] text-2xl sm:text-3xl">
+                <div className="font-display font-bold text-[#9B6B38] text-2xl sm:text-3xl">
                   {stat.value}
                 </div>
-                <div className="text-white/60 text-xs sm:text-sm mt-0.5">{stat.label}</div>
+                <div className="text-[#F5EFE4]/60 text-xs sm:text-sm mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -185,24 +185,24 @@ export default function Home() {
       </section>
 
       {/* QUIZ FEATURE */}
-      <section className="py-20 md:py-28 bg-[#f5f0e8]">
+      <section className="py-20 md:py-28 bg-[#F5EFE4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div>
-              <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">
+              <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">
                 Our Unique Approach
               </span>
-              <h2 className="font-display font-bold text-[#1a2744] text-4xl md:text-5xl mt-2 mb-6 leading-tight">
+              <h2 className="font-display font-bold text-[#1C1A15] text-4xl md:text-5xl mt-2 mb-6 leading-tight">
                 Style First.<br />Budget Second.
               </h2>
-              <p className="text-zinc-600 text-lg leading-relaxed mb-6">
+              <p className="text-[#78716C] text-lg leading-relaxed mb-6">
                 Most builders start with a budget conversation. We start with{" "}
-                <strong>your vision</strong>. Our Home Style Discovery Quiz
+                <strong className="text-[#3D3226]">your vision</strong>. Our Home Style Discovery Quiz
                 helps you identify your architectural direction, interior finish
                 preferences, and lifestyle priorities before we ever sit down
                 together.
               </p>
-              <p className="text-zinc-600 leading-relaxed mb-8">
+              <p className="text-[#78716C] leading-relaxed mb-8">
                 When you come to your discovery meeting, we arrive prepared —
                 with a personalized presentation built around your results, not
                 a generic portfolio pitch.
@@ -210,7 +210,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/quiz"
-                  className="inline-flex items-center justify-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold px-7 py-3.5 rounded transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold px-7 py-3.5 rounded-lg transition-colors"
                 >
                   Take the Free Quiz
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,11 +221,11 @@ export default function Home() {
             </div>
 
             {/* Quiz preview card */}
-            <div className="bg-[#1a2744] rounded-2xl p-6 sm:p-8 shadow-2xl">
-              <div className="text-[#c8922a] text-xs font-semibold uppercase tracking-widest mb-1">
+            <div className="bg-[#1C1A15] rounded-2xl p-6 sm:p-8 shadow-2xl">
+              <div className="text-[#9B6B38] text-xs font-semibold uppercase tracking-widest mb-1">
                 Home Style Discovery Quiz
               </div>
-              <p className="text-white/60 text-sm mb-6">
+              <p className="text-[#F5EFE4]/60 text-sm mb-6">
                 Which exterior homes are you most drawn to?
               </p>
               <div className="grid grid-cols-2 gap-3 mb-5">
@@ -235,7 +235,7 @@ export default function Home() {
                   { label: "Coastal Contemporary", gradient: "from-sky-600 to-cyan-300", emoji: "🌊" },
                   { label: "Mediterranean", gradient: "from-orange-700 to-amber-500", emoji: "🌿" },
                 ].map((s) => (
-                  <div key={s.label} className={`relative rounded-lg overflow-hidden border-2 border-white/10 h-20`}>
+                  <div key={s.label} className={`relative rounded-lg overflow-hidden border-2 border-[#EDE5D4]/20 h-20`}>
                     <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-40`}/>
                     <div className="relative h-full flex flex-col items-center justify-center gap-1 p-2">
                       <div className="text-lg">{s.emoji}</div>
@@ -246,16 +246,16 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-between text-white/30 text-xs mb-4">
+              <div className="flex items-center justify-between text-[#F5EFE4]/30 text-xs mb-4">
                 <span>Question 1 of 20+ visual questions</span>
                 <span>Free · 10–15 min</span>
               </div>
-              <div className="h-1 bg-white/10 rounded-full">
-                <div className="h-full w-1/12 bg-[#c8922a] rounded-full"/>
+              <div className="h-1 bg-[#F5EFE4]/10 rounded-full">
+                <div className="h-full w-1/12 bg-[#9B6B38] rounded-full"/>
               </div>
               <Link
                 href="/quiz"
-                className="mt-5 block text-center bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold py-3 rounded-lg transition-colors text-sm"
+                className="mt-5 block text-center bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold py-3 rounded-lg transition-colors text-sm"
               >
                 Start the Quiz →
               </Link>
@@ -265,16 +265,16 @@ export default function Home() {
       </section>
 
       {/* PROCESS */}
-      <section id="process" className="py-20 md:py-28 bg-[#1a2744]">
+      <section id="process" className="py-20 md:py-28 bg-[#1C1A15]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">
+            <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">
               Our Process
             </span>
-            <h2 className="font-display font-bold text-white text-4xl md:text-5xl mt-2">
+            <h2 className="font-display font-bold text-[#F5EFE4] text-4xl md:text-5xl mt-2">
               From Quiz to Keys
             </h2>
-            <p className="text-white/50 text-lg mt-4 max-w-xl mx-auto">
+            <p className="text-[#F5EFE4]/50 text-lg mt-4 max-w-xl mx-auto">
               A clear, structured process from your first click to move-in day.
             </p>
           </div>
@@ -283,17 +283,17 @@ export default function Home() {
             {processSteps.map((step, i) => (
               <div key={step.number} className="relative">
                 {i < processSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-white/10 z-0 -translate-x-3"/>
+                  <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-[#F5EFE4]/10 z-0 -translate-x-3"/>
                 )}
-                <div className="relative bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#c8922a]/30 transition-colors">
-                  <div className="font-display font-extrabold text-[#c8922a]/30 text-4xl leading-none mb-3">
+                <div className="relative bg-[#F5EFE4]/5 border border-[#F5EFE4]/10 rounded-xl p-6 hover:border-[#9B6B38]/30 transition-colors">
+                  <div className="font-display font-bold text-[#9B6B38]/30 text-4xl leading-none mb-3">
                     {step.number}
                   </div>
                   <div className="text-2xl mb-3">{step.icon}</div>
-                  <h3 className="font-display font-bold text-white text-lg mb-2">
+                  <h3 className="font-display font-bold text-[#F5EFE4] text-lg mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-white/50 text-sm leading-relaxed">
+                  <p className="text-[#F5EFE4]/50 text-sm leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -304,7 +304,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link
               href="/quiz"
-              className="inline-flex items-center gap-2 bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold px-8 py-4 rounded transition-colors"
+              className="inline-flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] text-[#FDFAF5] font-semibold px-8 py-4 rounded-lg transition-colors"
             >
               Start With the Style Quiz
             </Link>
@@ -313,16 +313,16 @@ export default function Home() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="py-20 md:py-28 bg-white">
+      <section id="services" className="py-20 md:py-28 bg-[#FDFAF5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">
+            <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">
               What We Build
             </span>
-            <h2 className="font-display font-bold text-[#1a2744] text-4xl md:text-5xl mt-2">
+            <h2 className="font-display font-bold text-[#1C1A15] text-4xl md:text-5xl mt-2">
               Our Services
             </h2>
-            <p className="text-zinc-500 text-lg mt-4 max-w-xl mx-auto">
+            <p className="text-[#78716C] text-lg mt-4 max-w-xl mx-auto">
               From custom new builds to renovations — built right, built to last.
             </p>
           </div>
@@ -331,13 +331,13 @@ export default function Home() {
             {services.map((service) => (
               <div
                 key={service.title}
-                className="group border border-zinc-100 rounded-xl p-7 hover:shadow-lg hover:border-[#c8922a]/30 transition-all duration-300"
+                className="group bg-[#FDFAF5] border border-[#EDE5D4] rounded-2xl p-7 hover:border-[#9B6B38]/30 hover:shadow-md transition-all duration-300"
               >
                 <div className="text-4xl mb-4">{service.icon}</div>
-                <h3 className="font-display font-bold text-[#1a2744] text-xl mb-2 group-hover:text-[#c8922a] transition-colors">
+                <h3 className="font-display font-bold text-[#1C1A15] text-xl mb-2 group-hover:text-[#9B6B38] transition-colors">
                   {service.title}
                 </h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">
+                <p className="text-[#78716C] text-sm leading-relaxed">
                   {service.description}
                 </p>
               </div>
@@ -347,27 +347,27 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-20 md:py-28 bg-[#f5f0e8]">
+      <section id="about" className="py-20 md:py-28 bg-[#EDE5D4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div>
-              <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">
+              <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">
                 About Us
               </span>
-              <h2 className="font-display font-bold text-[#1a2744] text-4xl md:text-5xl mt-2 mb-6">
+              <h2 className="font-display font-bold text-[#1C1A15] text-4xl md:text-5xl mt-2 mb-6">
                 Craftsmen Who Communicate
               </h2>
-              <p className="text-zinc-600 text-lg leading-relaxed mb-6">
+              <p className="text-[#78716C] text-lg leading-relaxed mb-6">
                 Emerson Park Construction was built on a simple belief: every
                 client deserves honest communication, skilled tradespeople, and
                 a home they are proud to live in.
               </p>
-              <p className="text-zinc-600 leading-relaxed mb-8">
+              <p className="text-[#78716C] leading-relaxed mb-8">
                 We specialize in custom new construction and design-build
                 projects in the Ocala area. Our style-first approach means
                 your home is designed around your vision — not a spec sheet.
               </p>
-              <ul className="space-y-3 text-zinc-700">
+              <ul className="space-y-3 text-[#3D3226]">
                 {[
                   "Fully licensed, insured, and bonded",
                   "Style-first discovery process — not budget-first",
@@ -376,7 +376,7 @@ export default function Home() {
                   "Warranty on all completed work",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-[#c8922a] mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-[#9B6B38] mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                     </svg>
                     <span className="text-sm">{item}</span>
@@ -386,13 +386,13 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="aspect-[4/3] bg-[#1a2744] rounded-2xl flex items-center justify-center overflow-hidden">
+              <div className="aspect-[4/3] bg-[#1C1A15] rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="text-center px-8">
                   <div className="text-6xl mb-4">🏗️</div>
-                  <p className="text-white/50 text-sm">Project photos coming soon</p>
+                  <p className="text-[#F5EFE4]/50 text-sm">Project photos coming soon</p>
                 </div>
               </div>
-              <div className="absolute -bottom-4 -left-4 bg-[#c8922a] rounded-xl px-6 py-4 shadow-xl">
+              <div className="absolute -bottom-4 -left-4 bg-[#9B6B38] rounded-xl px-6 py-4 shadow-xl">
                 <div className="font-display font-bold text-white text-3xl">15+</div>
                 <div className="text-white/80 text-sm">Years in Business</div>
               </div>
@@ -402,9 +402,9 @@ export default function Home() {
       </section>
 
       {/* QUIZ CTA BANNER */}
-      <section className="py-16 bg-[#c8922a]">
+      <section className="py-16 bg-[#9B6B38]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl mb-4">
+          <h2 className="font-display font-bold text-white text-3xl sm:text-4xl mb-4">
             Don't Know Where to Start?
           </h2>
           <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
@@ -414,7 +414,7 @@ export default function Home() {
           </p>
           <Link
             href="/quiz"
-            className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-[#c8922a] font-bold text-base px-8 py-4 rounded transition-colors duration-200"
+            className="inline-flex items-center gap-2 bg-[#FDFAF5] hover:bg-white text-[#9B6B38] font-bold text-base px-8 py-4 rounded-lg transition-colors duration-200"
           >
             Take the Free Style Quiz
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -425,51 +425,51 @@ export default function Home() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="py-20 md:py-28 bg-[#1a2744]">
+      <section id="contact" className="py-20 md:py-28 bg-[#1C1A15]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-[#c8922a] text-sm font-semibold uppercase tracking-widest">
+          <span className="text-[#9B6B38] text-sm font-semibold uppercase tracking-widest">
             Get in Touch
           </span>
-          <h2 className="font-display font-bold text-white text-4xl md:text-5xl mt-2 mb-6">
+          <h2 className="font-display font-bold text-[#F5EFE4] text-4xl md:text-5xl mt-2 mb-6">
             Ready to Talk?
           </h2>
-          <p className="text-white/60 text-lg mb-10">
+          <p className="text-[#F5EFE4]/60 text-lg mb-10">
             Whether you want to take the quiz first or jump straight into a
             conversation — we&apos;re here when you&apos;re ready.
           </p>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 text-left mb-8">
+          <div className="bg-[#F5EFE4]/5 border border-[#F5EFE4]/10 rounded-2xl p-8 md:p-10 text-left mb-8">
             <form className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-white/70 text-sm mb-1.5">First Name</label>
-                  <input type="text" placeholder="Jane" className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"/>
+                  <label className="block text-[#F5EFE4]/70 text-sm mb-1.5">First Name</label>
+                  <input type="text" placeholder="Jane" className="w-full bg-[#F5EFE4]/5 border border-[#F5EFE4]/20 rounded-lg px-4 py-3 text-[#F5EFE4] placeholder-[#F5EFE4]/30 text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"/>
                 </div>
                 <div>
-                  <label className="block text-white/70 text-sm mb-1.5">Last Name</label>
-                  <input type="text" placeholder="Smith" className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"/>
+                  <label className="block text-[#F5EFE4]/70 text-sm mb-1.5">Last Name</label>
+                  <input type="text" placeholder="Smith" className="w-full bg-[#F5EFE4]/5 border border-[#F5EFE4]/20 rounded-lg px-4 py-3 text-[#F5EFE4] placeholder-[#F5EFE4]/30 text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"/>
                 </div>
               </div>
               <div>
-                <label className="block text-white/70 text-sm mb-1.5">Email</label>
-                <input type="email" placeholder="jane@example.com" className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"/>
+                <label className="block text-[#F5EFE4]/70 text-sm mb-1.5">Email</label>
+                <input type="email" placeholder="jane@example.com" className="w-full bg-[#F5EFE4]/5 border border-[#F5EFE4]/20 rounded-lg px-4 py-3 text-[#F5EFE4] placeholder-[#F5EFE4]/30 text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"/>
               </div>
               <div>
-                <label className="block text-white/70 text-sm mb-1.5">Phone</label>
-                <input type="tel" placeholder="(555) 000-0000" className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors"/>
+                <label className="block text-[#F5EFE4]/70 text-sm mb-1.5">Phone</label>
+                <input type="tel" placeholder="(555) 000-0000" className="w-full bg-[#F5EFE4]/5 border border-[#F5EFE4]/20 rounded-lg px-4 py-3 text-[#F5EFE4] placeholder-[#F5EFE4]/30 text-sm focus:outline-none focus:border-[#9B6B38] transition-colors"/>
               </div>
               <div>
-                <label className="block text-white/70 text-sm mb-1.5">Tell us about your project</label>
-                <textarea rows={4} placeholder="I'm looking to build a custom home on my lot in Ocala…" className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#c8922a] transition-colors resize-none"/>
+                <label className="block text-[#F5EFE4]/70 text-sm mb-1.5">Tell us about your project</label>
+                <textarea rows={4} placeholder="I'm looking to build a custom home on my lot in Ocala…" className="w-full bg-[#F5EFE4]/5 border border-[#F5EFE4]/20 rounded-lg px-4 py-3 text-[#F5EFE4] placeholder-[#F5EFE4]/30 text-sm focus:outline-none focus:border-[#9B6B38] transition-colors resize-none"/>
               </div>
-              <button type="submit" className="w-full bg-[#c8922a] hover:bg-[#e0a83c] text-white font-semibold py-4 rounded-lg transition-colors duration-200 text-base">
+              <button type="submit" className="w-full bg-[#9B6B38] hover:bg-[#B57E4A] text-white font-semibold py-4 rounded-lg transition-colors duration-200 text-base">
                 Send Message
               </button>
             </form>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-white/50 text-sm">
-            <a href="mailto:info@buildemersonpark.com" className="flex items-center gap-2 hover:text-[#c8922a] transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-[#F5EFE4]/50 text-sm">
+            <a href="mailto:info@buildemersonpark.com" className="flex items-center gap-2 hover:text-[#9B6B38] transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
@@ -477,7 +477,7 @@ export default function Home() {
               info@buildemersonpark.com
             </a>
             <span className="hidden sm:block">•</span>
-            <a href="tel:+15550000000" className="flex items-center gap-2 hover:text-[#c8922a] transition-colors">
+            <a href="tel:+15550000000" className="flex items-center gap-2 hover:text-[#9B6B38] transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
               </svg>
