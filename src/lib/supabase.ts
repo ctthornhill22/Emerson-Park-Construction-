@@ -63,25 +63,19 @@ export interface QuizSession {
   // Stage 3
   last_name: string | null;
   phone: string | null;
-  build_location: string | null;
-  contact_preference: string | null;
-  meeting_type: string | null;
-  notes: string | null;
   square_footage: string | null;
-  stories: string | null;
   bedrooms: string | null;
   bathrooms: string | null;
-  garage_spaces: string | null;
-  pool_preference: string | null;
-  outdoor_kitchen: boolean | null;
-  budget_range: string | null;
+  pool: boolean | null;
+  garage_size: string | null;
+  special_spaces: string[] | null;
   timeline: string | null;
-  lot_status: string | null;
   stage_3_completed_at: string | null;
 
   // Cost estimate
   cost_estimate_low: number | null;
   cost_estimate_high: number | null;
+  /** Q10 answer ID used as the finish-level key (e.g. "custom_statement_millwork") */
   cost_finish_level: string | null;
 
   // CRM & email tracking

@@ -4,6 +4,15 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { STAGE_1_QUESTIONS, STAGE_2_QUESTIONS } from "@/lib/quiz-data";
 import type { QuizOption, StageQuestion } from "@/lib/quiz-data";
 import type { Stage3Data } from "@/lib/quiz-scoring";
+import {
+  squareFootageOptions,
+  bedroomOptions,
+  bathroomOptions,
+  garageSizeOptions,
+  specialSpacesOptions,
+  timelineOptions,
+  stage3Copy,
+} from "@/lib/stage3-form-data";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,22 +34,15 @@ interface CompletePayload {
 }
 
 const DEFAULT_S3: Stage3Data = {
-  squareFootage: "",
-  stories: "",
-  bedrooms: "",
-  bathrooms: "",
-  garageSpaces: "",
-  poolPreference: "",
-  outdoorKitchen: false,
-  budgetRange: "",
-  timeline: "",
-  lotStatus: "",
-  lastName: "",
-  phone: "",
-  buildLocation: "",
-  contactPreference: "",
-  meetingType: "",
-  notes: "",
+  squareFootage:  "",
+  bedrooms:       "",
+  bathrooms:      "",
+  pool:           false,
+  garageSize:     "",
+  specialSpaces:  [],
+  timeline:       "",
+  lastName:       "",
+  phone:          "",
 };
 
 // ─── Main QuizFlow component ──────────────────────────────────────────────────
@@ -857,8 +859,17 @@ function Stage3Form({
   isSubmitting: boolean;
   submitError: string | null;
 }) {
-  const set = (field: keyof Stage3Data, value: string | boolean) =>
+  const set = (field: keyof Stage3Data, value: string | boolean | string[]) =>
     onChange((prev) => ({ ...prev, [field]: value }));
+
+  const toggleSpecialSpace = (val: string) => {
+    const current = data.specialSpaces;
+    if (current.includes(val)) {
+      set("specialSpaces", current.filter((s) => s !== val));
+    } else {
+      set("specialSpaces", [...current, val]);
+    }
+  };
 
   const inputCls =
     "w-full bg-[#FDFAF5] border border-[#EDE5D4] rounded-lg px-4 py-3 text-[#1C1A15] text-sm focus:outline-none focus:border-[#9B6B38] transition-colors";
@@ -878,159 +889,145 @@ function Stage3Form({
             <span className="text-[#9B6B38] text-sm font-medium">Stage 3 · Project Details</span>
           </div>
           <h2 className="font-display font-bold text-[#1C1A15] text-3xl sm:text-4xl leading-tight mb-2">
-            Tell us about your project.
+            {stage3Copy.screenHeadline}
           </h2>
           <p className="text-[#78716C] text-base leading-relaxed">
-            This helps us prepare your personalized cost estimate range and
-            discovery meeting presentation.
+            {stage3Copy.screenSubheadline}
           </p>
         </div>
 
         <div className="space-y-10">
 
-          {/* ── Project Scope ── */}
+          {/* ── About Your Project ── */}
           <div className="bg-[#FDFAF5] border border-[#EDE5D4] rounded-2xl p-6 sm:p-8">
             <h3 className="font-display font-bold text-[#1C1A15] text-xl mb-6">
-              Project Scope
+              {stage3Copy.group1Label}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
+              {/* Square footage */}
               <div>
                 <label className={labelCls}>Target Home Size *</label>
                 <select value={data.squareFootage} onChange={(e) => set("squareFootage", e.target.value)} className={inputCls}>
                   <option value="">Select…</option>
-                  <option value="under-2000">Under 2,000 sq. ft.</option>
-                  <option value="2000-2499">2,000 – 2,499 sq. ft.</option>
-                  <option value="2500-2999">2,500 – 2,999 sq. ft.</option>
-                  <option value="3000-3499">3,000 – 3,499 sq. ft.</option>
-                  <option value="3500-3999">3,500 – 3,999 sq. ft.</option>
-                  <option value="4000-4999">4,000 – 4,999 sq. ft.</option>
-                  <option value="5000+">5,000+ sq. ft.</option>
-                  <option value="not-sure">Not sure yet</option>
+                  {squareFootageOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
-              <div>
-                <label className={labelCls}>Number of Stories</label>
-                <select value={data.stories} onChange={(e) => set("stories", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="single">Single-story</option>
-                  <option value="two-story">Two-story</option>
-                  <option value="primary-down">Primary suite down, guests up</option>
-                  <option value="flexible">Open to either</option>
-                </select>
-              </div>
-
+              {/* Bedrooms */}
               <div>
                 <label className={labelCls}>Bedrooms *</label>
                 <select value={data.bedrooms} onChange={(e) => set("bedrooms", e.target.value)} className={inputCls}>
                   <option value="">Select…</option>
-                  <option value="2">2 bedrooms</option>
-                  <option value="3">3 bedrooms</option>
-                  <option value="4">4 bedrooms</option>
-                  <option value="5">5 bedrooms</option>
-                  <option value="6+">6+ bedrooms</option>
+                  {bedroomOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Bathrooms */}
               <div>
                 <label className={labelCls}>Bathrooms</label>
                 <select value={data.bathrooms} onChange={(e) => set("bathrooms", e.target.value)} className={inputCls}>
                   <option value="">Select…</option>
-                  <option value="2">2 bathrooms</option>
-                  <option value="2.5">2.5 bathrooms</option>
-                  <option value="3">3 bathrooms</option>
-                  <option value="3.5">3.5 bathrooms</option>
-                  <option value="4">4 bathrooms</option>
-                  <option value="4.5+">4.5+ bathrooms</option>
+                  {bathroomOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Garage */}
               <div>
-                <label className={labelCls}>Garage Spaces</label>
-                <select value={data.garageSpaces} onChange={(e) => set("garageSpaces", e.target.value)} className={inputCls}>
+                <label className={labelCls}>Garage</label>
+                <select value={data.garageSize} onChange={(e) => set("garageSize", e.target.value)} className={inputCls}>
                   <option value="">Select…</option>
-                  <option value="1">1-car garage</option>
-                  <option value="2">2-car garage</option>
-                  <option value="3">3-car garage</option>
-                  <option value="3+">3+ car garage</option>
-                  <option value="none">No garage needed</option>
+                  {garageSizeOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
-              <div>
-                <label className={labelCls}>Pool</label>
-                <select value={data.poolPreference} onChange={(e) => set("poolPreference", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="yes">Yes, definitely</option>
-                  <option value="likely">Probably yes</option>
-                  <option value="maybe">Maybe / keep the option open</option>
-                  <option value="future">Plan for future pool</option>
-                  <option value="no">No pool needed</option>
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>Budget Range</label>
-                <select value={data.budgetRange} onChange={(e) => set("budgetRange", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="under-600k">Under $600K</option>
-                  <option value="600k-800k">$600K – $800K</option>
-                  <option value="800k-1m">$800K – $1M</option>
-                  <option value="1m-1.5m">$1M – $1.5M</option>
-                  <option value="1.5m+">$1.5M+</option>
-                  <option value="not-sure">Not sure yet</option>
-                </select>
-              </div>
-
-              <div>
+              {/* Timeline */}
+              <div className="sm:col-span-2">
                 <label className={labelCls}>Timeline</label>
                 <select value={data.timeline} onChange={(e) => set("timeline", e.target.value)} className={inputCls}>
                   <option value="">Select…</option>
-                  <option value="now">Ready to start now</option>
-                  <option value="1-3mo">1 – 3 months</option>
-                  <option value="3-6mo">3 – 6 months</option>
-                  <option value="6-12mo">6 – 12 months</option>
-                  <option value="12mo+">12+ months out</option>
-                  <option value="exploring">Still exploring</option>
+                  {timelineOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Pool — yes / no toggle */}
               <div className="sm:col-span-2">
-                <label className={labelCls}>Lot / Land Status</label>
-                <select value={data.lotStatus} onChange={(e) => set("lotStatus", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="owned">I own a lot</option>
-                  <option value="contract">Under contract on a lot</option>
-                  <option value="prospect">Have a specific lot in mind</option>
-                  <option value="searching">Actively searching</option>
-                  <option value="guidance">Need help knowing what to look for</option>
-                  <option value="none">Haven&apos;t started looking</option>
-                </select>
+                <label className={labelCls}>{stage3Copy.poolToggleLabel}</label>
+                <div className="flex gap-3 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => set("pool", true)}
+                    className={`flex-1 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                      data.pool
+                        ? "bg-[#9B6B38] border-[#9B6B38] text-white"
+                        : "bg-[#FDFAF5] border-[#EDE5D4] text-[#78716C] hover:border-[#9B6B38]/50"
+                    }`}
+                  >
+                    {stage3Copy.poolToggleYes}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => set("pool", false)}
+                    className={`flex-1 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                      !data.pool
+                        ? "bg-[#9B6B38] border-[#9B6B38] text-white"
+                        : "bg-[#FDFAF5] border-[#EDE5D4] text-[#78716C] hover:border-[#9B6B38]/50"
+                    }`}
+                  >
+                    {stage3Copy.poolToggleNo}
+                  </button>
+                </div>
               </div>
 
+              {/* Special spaces — multi-select */}
               <div className="sm:col-span-2">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={data.outdoorKitchen}
-                    onChange={(e) => set("outdoorKitchen", e.target.checked)}
-                    className="w-4 h-4 accent-[#9B6B38] rounded"
-                  />
-                  <span className="text-[#78716C] text-sm">Include outdoor kitchen in the design</span>
-                </label>
+                <label className={labelCls}>Special Spaces</label>
+                <p className="text-[#78716C] text-xs mb-3">Select all that apply</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {specialSpacesOptions.map((o) => {
+                    const checked = data.specialSpaces.includes(o.value);
+                    return (
+                      <button
+                        key={o.value}
+                        type="button"
+                        onClick={() => toggleSpecialSpace(o.value)}
+                        className={`text-left px-3 py-2.5 rounded-lg border text-xs font-medium transition-all ${
+                          checked
+                            ? "bg-[#9B6B38]/10 border-[#9B6B38] text-[#9B6B38]"
+                            : "bg-[#FDFAF5] border-[#EDE5D4] text-[#78716C] hover:border-[#9B6B38]/40"
+                        }`}
+                      >
+                        {checked && <span className="mr-1">✓</span>}
+                        {o.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
             </div>
           </div>
 
-          {/* ── Contact Info ── */}
+          {/* ── About You ── */}
           <div className="bg-[#FDFAF5] border border-[#EDE5D4] rounded-2xl p-6 sm:p-8">
-            <h3 className="font-display font-bold text-[#1C1A15] text-xl mb-2">Your Contact Info</h3>
-            <p className="text-[#78716C] text-sm mb-6">
-              {firstName && email
-                ? `Using ${firstName} · ${email} from Stage 1. Fill in the rest below.`
-                : "Tell us how to reach you."}
-            </p>
+            <h3 className="font-display font-bold text-[#1C1A15] text-xl mb-2">
+              {stage3Copy.group2Label}
+            </h3>
+            {firstName && email && (
+              <p className="text-[#78716C] text-sm mb-6">
+                Using <strong>{firstName}</strong> · {email} from Stage 1.
+              </p>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
@@ -1044,86 +1041,80 @@ function Stage3Form({
               </div>
               <div>
                 <label className={labelCls}>Last Name</label>
-                <input type="text" value={data.lastName} onChange={(e) => set("lastName", e.target.value)} placeholder="Smith" className={inputCls} />
+                <input
+                  type="text"
+                  value={data.lastName}
+                  onChange={(e) => set("lastName", e.target.value)}
+                  placeholder="Smith"
+                  className={inputCls}
+                />
               </div>
               <div>
                 <label className={labelCls}>Email</label>
-                <input type="email" value={email} readOnly className={`${inputCls} bg-[#EDE5D4]/50 cursor-default`} />
+                <input
+                  type="email"
+                  value={email}
+                  readOnly
+                  className={`${inputCls} bg-[#EDE5D4]/50 cursor-default`}
+                />
               </div>
               <div>
                 <label className={labelCls}>Phone</label>
-                <input type="tel" value={data.phone} onChange={(e) => set("phone", e.target.value)} placeholder="(352) 000-0000" className={inputCls} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className={labelCls}>Desired Build Location / Area</label>
-                <input type="text" value={data.buildLocation} onChange={(e) => set("buildLocation", e.target.value)} placeholder="e.g. Ocala, FL or Marion County" className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>Best Way to Reach You</label>
-                <select value={data.contactPreference} onChange={(e) => set("contactPreference", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="email">Email</option>
-                  <option value="phone">Phone Call</option>
-                  <option value="text">Text Message</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Preferred Meeting Type</label>
-                <select value={data.meetingType} onChange={(e) => set("meetingType", e.target.value)} className={inputCls}>
-                  <option value="">Select…</option>
-                  <option value="phone">Phone Call</option>
-                  <option value="video">Video Call</option>
-                  <option value="in-person">In Person</option>
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className={labelCls}>Anything Else You&apos;d Like Us to Know?</label>
-                <textarea
-                  rows={3}
-                  value={data.notes}
-                  onChange={(e) => set("notes", e.target.value)}
-                  placeholder="Tell us anything that would help us prepare for your discovery conversation…"
-                  className={`${inputCls} resize-none`}
+                <input
+                  type="tel"
+                  value={data.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                  placeholder="(352) 000-0000"
+                  className={inputCls}
                 />
               </div>
             </div>
           </div>
 
-          {/* Submit */}
+          {/* ── Submit ── */}
           {submitError && (
             <p className="text-red-600 text-sm text-center">{submitError}</p>
           )}
 
-          <div className="flex items-center justify-between">
-            <button onClick={onBack} className="flex items-center gap-2 text-[#78716C] hover:text-[#1C1A15] text-sm font-medium transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-
+          <div className="flex flex-col items-center gap-4">
             <button
               onClick={onSubmit}
               disabled={!isValid || isSubmitting}
-              className="flex items-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-base px-8 py-4 rounded-lg transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#9B6B38] hover:bg-[#B57E4A] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-base px-10 py-4 rounded-lg transition-colors"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <SpinnerIcon /> Submitting…
+                  <SpinnerIcon /> Generating Your Concept…
                 </span>
               ) : (
                 <>
-                  Submit My Project Profile
+                  {stage3Copy.submitButtonLabel}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </>
               )}
             </button>
+
+            <p className="text-center text-[#78716C] text-sm max-w-sm leading-relaxed">
+              {stage3Copy.belowButtonText}
+            </p>
+            <p className="text-center text-[#78716C]/50 text-xs">
+              {stage3Copy.privacyText}
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <button onClick={onBack} className="flex items-center gap-2 text-[#78716C]/60 hover:text-[#78716C] text-sm transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
           </div>
 
           {!isValid && (
-            <p className="text-center text-[#78716C]/60 text-xs">
+            <p className="text-center text-[#78716C]/50 text-xs -mt-4">
               * Target home size and bedrooms are required to generate your cost estimate.
             </p>
           )}

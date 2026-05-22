@@ -1,7 +1,8 @@
 -- ──────────────────────────────────────────────────────────────────────────────
 -- Emerson Park Design & Construction
 -- Quiz Sessions Table
--- Run this migration in your Supabase SQL editor or via the Supabase CLI
+-- Run this in your Supabase SQL editor:
+--   supabase.com/dashboard/project/uxjmtgyklaotsaxgpswa/sql/new
 -- ──────────────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS quiz_sessions (
@@ -39,26 +40,19 @@ CREATE TABLE IF NOT EXISTS quiz_sessions (
   -- Stage 3: Project Details + Contact
   last_name                 TEXT,
   phone                     TEXT,
-  build_location            TEXT,
-  contact_preference        TEXT,
-  meeting_type              TEXT,
-  notes                     TEXT,
   square_footage            TEXT,
-  stories                   TEXT,
   bedrooms                  TEXT,
   bathrooms                 TEXT,
-  garage_spaces             TEXT,
-  pool_preference           TEXT,
-  outdoor_kitchen           BOOLEAN,
-  budget_range              TEXT,
+  pool                      BOOLEAN DEFAULT FALSE,
+  garage_size               TEXT,
+  special_spaces            JSONB,  -- string[]
   timeline                  TEXT,
-  lot_status                TEXT,
   stage_3_completed_at      TIMESTAMPTZ,
 
   -- Cost estimate
   cost_estimate_low         INTEGER,
   cost_estimate_high        INTEGER,
-  cost_finish_level         TEXT,
+  cost_finish_level         TEXT,   -- Q10 answer ID (e.g. "custom_statement_millwork")
 
   -- CRM & email tracking
   ghl_contact_id            TEXT,
@@ -86,10 +80,10 @@ CREATE TRIGGER quiz_sessions_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Useful indexes
-CREATE INDEX idx_quiz_sessions_email          ON quiz_sessions(email);
-CREATE INDEX idx_quiz_sessions_stage          ON quiz_sessions(stage);
-CREATE INDEX idx_quiz_sessions_replicate_id   ON quiz_sessions(replicate_prediction_id);
-CREATE INDEX idx_quiz_sessions_created        ON quiz_sessions(created_at DESC);
+CREATE INDEX idx_quiz_sessions_email         ON quiz_sessions(email);
+CREATE INDEX idx_quiz_sessions_stage         ON quiz_sessions(stage);
+CREATE INDEX idx_quiz_sessions_replicate_id  ON quiz_sessions(replicate_prediction_id);
+CREATE INDEX idx_quiz_sessions_created       ON quiz_sessions(created_at DESC);
 
 -- Row-level security (enable then add policies as needed)
 ALTER TABLE quiz_sessions ENABLE ROW LEVEL SECURITY;

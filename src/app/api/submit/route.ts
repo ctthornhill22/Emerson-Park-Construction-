@@ -8,8 +8,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServiceClient } from "@/lib/supabase";
-import { estimateCost, buildFullResult, scoreStage1, scoreStage2 } from "@/lib/quiz-scoring";
+import { buildFullResult, scoreStage1, scoreStage2 } from "@/lib/quiz-scoring";
 import type { Stage3Data } from "@/lib/quiz-scoring";
+import { calculatePriceRange } from "@/lib/stage3-form-data";
+import type { PricingResult } from "@/lib/stage3-form-data";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,38 +39,37 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Re-score both stages for the final result ──────────────────────────
-    const s1Result = scoreStage1(session.s1_answers ?? {});
-    const s2Result = scoreStage2(session.s2_answers ?? {});
+    const s1Result   = scoreStage1(session.s1_answers ?? {});
+    const s2Result   = scoreStage2(session.s2_answers ?? {});
     const fullResult = buildFullResult(s1Result, s2Result);
 
-    // ── Cost estimate ──────────────────────────────────────────────────────
-    const cost = estimateCost(s3Data, fullResult.primaryFinish.code);
+    // ── Cost estimate — use Q10 answer as the finish multiplier key ─────────
+    const s2Answers = session.s2_answers ?? {};
+    const q10Answer = s2Answers["q10_detail_level"] as string | undefined;
+    const finishKey  = (typeof q10Answer === "string" ? q10Answer : null)
+                     ?? fullResult.primaryFinish.code.toLowerCase()
+                     ?? "clean_wood_accents";
+
+    const pricing = calculatePriceRange(s3Data, finishKey);
 
     // ── Update Supabase ────────────────────────────────────────────────────
     await supabase
       .from("quiz_sessions")
       .update({
-        last_name:          s3Data.lastName,
-        phone:              s3Data.phone,
-        build_location:     s3Data.buildLocation,
-        contact_preference: s3Data.contactPreference,
-        meeting_type:       s3Data.meetingType,
-        notes:              s3Data.notes,
-        square_footage:     s3Data.squareFootage,
-        stories:            s3Data.stories,
-        bedrooms:           s3Data.bedrooms,
-        bathrooms:          s3Data.bathrooms,
-        garage_spaces:      s3Data.garageSpaces,
-        pool_preference:    s3Data.poolPreference,
-        outdoor_kitchen:    s3Data.outdoorKitchen,
-        budget_range:       s3Data.budgetRange,
-        timeline:           s3Data.timeline,
-        lot_status:         s3Data.lotStatus,
-        cost_estimate_low:  cost.low,
-        cost_estimate_high: cost.high,
-        cost_finish_level:  cost.finishLevel,
-        stage_3_completed_at: new Date().toISOString(),
-        stage: "complete",
+        last_name:             s3Data.lastName,
+        phone:                 s3Data.phone,
+        square_footage:        s3Data.squareFootage,
+        bedrooms:              s3Data.bedrooms,
+        bathrooms:             s3Data.bathrooms,
+        pool:                  s3Data.pool,
+        garage_size:           s3Data.garageSize,
+        special_spaces:        s3Data.specialSpaces,
+        timeline:              s3Data.timeline,
+        cost_estimate_low:     Math.round(pricing.lowEstimate),
+        cost_estimate_high:    Math.round(pricing.highEstimate),
+        cost_finish_level:     finishKey,
+        stage_3_completed_at:  new Date().toISOString(),
+        stage:                 "complete",
       })
       .eq("id", sessionId);
 
@@ -77,41 +78,45 @@ export async function POST(req: NextRequest) {
     if (ghlUrl) {
       try {
         const ghlBody = {
-          firstName:        session.first_name,
-          lastName:         s3Data.lastName,
-          email:            session.email,
-          phone:            s3Data.phone,
-          source:           "quiz",
-          tags:             ["quiz-completed", `style-${fullResult.primaryArch.code}`, `timeline-${s3Data.timeline}`],
+          firstName:    session.first_name,
+          lastName:     s3Data.lastName,
+          email:        session.email,
+          phone:        s3Data.phone,
+          source:       "quiz",
+          tags: [
+            "quiz-completed",
+            `style-${fullResult.primaryArch.code}`,
+            `finish-${fullResult.primaryFinish.code}`,
+            `tier-${finishKey}`,
+            s3Data.pool ? "pool-yes" : "pool-no",
+            `timeline-${s3Data.timeline}`,
+          ],
           customFields: {
-            primaryArchStyle:      fullResult.primaryArch.name,
-            secondaryArchStyle:    fullResult.secondaryArch.name,
-            primaryFinishStyle:    fullResult.primaryFinish.name,
-            styleBlend:            fullResult.styleBlend,
-            squareFootage:         s3Data.squareFootage,
-            bedrooms:              s3Data.bedrooms,
-            bathrooms:             s3Data.bathrooms,
-            poolPreference:        s3Data.poolPreference,
-            budgetRange:           s3Data.budgetRange,
-            timeline:              s3Data.timeline,
-            lotStatus:             s3Data.lotStatus,
-            buildLocation:         s3Data.buildLocation,
-            contactPreference:     s3Data.contactPreference,
-            meetingType:           s3Data.meetingType,
-            costEstimateLow:       cost.low.toString(),
-            costEstimateHigh:      cost.high.toString(),
-            costEstimateRange:     cost.formatted.range,
-            renderingUrl:          session.rendering_url ?? "",
-            moodboardImages:       (session.moodboard_images ?? []).join(", "),
-            notes:                 s3Data.notes,
+            primaryArchStyle:       fullResult.primaryArch.name,
+            secondaryArchStyle:     fullResult.secondaryArch.name,
+            primaryFinishStyle:     fullResult.primaryFinish.name,
+            styleBlend:             fullResult.styleBlend,
+            squareFootage:          s3Data.squareFootage,
+            bedrooms:               s3Data.bedrooms,
+            bathrooms:              s3Data.bathrooms,
+            pool:                   s3Data.pool ? "Yes" : "No",
+            garageSize:             s3Data.garageSize,
+            specialSpaces:          s3Data.specialSpaces.join(", "),
+            timeline:               s3Data.timeline,
+            finishTier:             finishKey,
+            costEstimateLow:        pricing.formattedLow,
+            costEstimateHigh:       pricing.formattedHigh,
+            costEstimateRange:      `${pricing.formattedLow} – ${pricing.formattedHigh}`,
+            renderingUrl:           session.rendering_url ?? "",
+            moodboardImages:        (session.moodboard_images ?? []).join(", "),
             sessionId,
           },
         };
 
         const ghlRes = await fetch(ghlUrl, {
-          method: "POST",
+          method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(ghlBody),
+          body:    JSON.stringify(ghlBody),
         });
 
         if (ghlRes.ok) {
@@ -133,9 +138,9 @@ export async function POST(req: NextRequest) {
     if (process.env.RESEND_API_KEY && session.email) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from: `${fromName} <${fromEmail}>`,
-        to: session.email,
-        subject: `${session.first_name ?? "Your"} Complete Design Profile — Emerson Park`,
+        from:    `${fromName} <${fromEmail}>`,
+        to:      session.email,
+        subject: `${session.first_name ?? "Your"} Emerson Park concept is ready`,
         html: conceptEmailHtml({
           firstName:       session.first_name ?? "There",
           lastName:        s3Data.lastName,
@@ -145,12 +150,9 @@ export async function POST(req: NextRequest) {
           secondaryFinish: fullResult.secondaryFinish.name,
           styleBlend:      fullResult.styleBlend,
           styleSummary:    fullResult.styleSummary,
-          costRange:       cost.formatted.range,
-          finishLevel:     cost.finishLevel,
-          assumptions:     cost.assumptions,
+          pricing,
           renderingUrl:    session.rendering_url ?? null,
           moodboardImages: session.moodboard_images ?? [],
-          s3Data,
         }),
       });
 
@@ -161,11 +163,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      status: "complete",
-      costEstimate: cost,
-      primaryArch:   fullResult.primaryArch.name,
-      primaryFinish: fullResult.primaryFinish.name,
-      styleBlend:    fullResult.styleBlend,
+      status:       "complete",
+      primaryArch:  fullResult.primaryArch.name,
+      primaryFinish:fullResult.primaryFinish.name,
+      styleBlend:   fullResult.styleBlend,
+      costRange:    `${pricing.formattedLow} – ${pricing.formattedHigh}`,
     });
   } catch (err) {
     console.error("POST /api/submit error:", err);
@@ -184,12 +186,9 @@ function conceptEmailHtml(d: {
   secondaryFinish: string;
   styleBlend: string;
   styleSummary: string;
-  costRange: string;
-  finishLevel: string;
-  assumptions: string[];
+  pricing: PricingResult;
   renderingUrl: string | null;
   moodboardImages: string[];
-  s3Data: Stage3Data;
 }) {
   const renderingSection = d.renderingUrl
     ? `<div style="margin-bottom:24px;">
@@ -199,23 +198,34 @@ function conceptEmailHtml(d: {
        </div>`
     : "";
 
-  const moodboardSection = d.moodboardImages.length > 0
-    ? `<div style="margin-bottom:24px;">
-        <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Interior Mood Board</p>
-        <table width="100%" cellpadding="4" cellspacing="0"><tr>
-          ${d.moodboardImages
-            .slice(0, 4)
-            .map(
-              (url) =>
-                `<td width="25%"><img src="${url}" alt="Interior inspiration" style="width:100%;border-radius:6px;display:block;" /></td>`
-            )
-            .join("")}
-        </tr></table>
-       </div>`
-    : "";
+  const moodboardSection =
+    d.moodboardImages.length > 0
+      ? `<div style="margin-bottom:24px;">
+          <p style="margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Interior Mood Board</p>
+          <table width="100%" cellpadding="4" cellspacing="0"><tr>
+            ${d.moodboardImages
+              .slice(0, 4)
+              .map(
+                (url) =>
+                  `<td width="25%"><img src="${url}" alt="Interior inspiration" style="width:100%;border-radius:6px;display:block;" /></td>`
+              )
+              .join("")}
+          </tr></table>
+         </div>`
+      : "";
 
-  const assumptionsList = d.assumptions
-    .map((a) => `<li style="margin-bottom:4px;color:#78716C;">${a}</li>`)
+  const lineItemRows = d.pricing.lineItems
+    .map(
+      (item) =>
+        `<tr>
+          <td style="padding:6px 0;font-size:13px;color:#78716C;">${item.label}</td>
+          <td style="padding:6px 0;font-size:13px;color:#78716C;text-align:right;">
+            ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(item.lowCost)}
+            –
+            ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(item.highCost)}
+          </td>
+        </tr>`
+    )
     .join("");
 
   return /* html */ `
@@ -224,7 +234,7 @@ function conceptEmailHtml(d: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Your Complete Design Profile</title>
+  <title>Your Emerson Park Concept</title>
 </head>
 <body style="margin:0;padding:0;background:#F5EFE4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#3D3226;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5EFE4;padding:40px 20px;">
@@ -243,12 +253,12 @@ function conceptEmailHtml(d: {
           <!-- Body -->
           <tr>
             <td style="background:#fff;padding:40px;">
-              <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Complete Design Profile</p>
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Your Concept Is Ready</p>
               <h1 style="margin:0 0 16px;font-size:28px;font-weight:700;color:#1C1A15;line-height:1.2;">
-                ${d.firstName}, your design profile is ready.
+                ${d.firstName}, your Emerson Park concept is here.
               </h1>
               <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#78716C;">
-                Our team will review your profile and reach out within one business day to schedule your personalized discovery meeting.
+                Based on your design selections, here&apos;s the direction your home is pointing. Our team will be in touch within one business day.
               </p>
 
               <!-- Style summary -->
@@ -266,16 +276,18 @@ function conceptEmailHtml(d: {
               ${moodboardSection}
 
               <!-- Cost estimate -->
-              <div style="background:#9B6B38;border-radius:10px;padding:24px;margin-bottom:24px;text-align:center;">
+              <div style="background:#9B6B38;border-radius:10px;padding:24px;margin-bottom:16px;text-align:center;">
                 <p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">Estimated Investment Range</p>
-                <p style="margin:0 0 8px;font-size:32px;font-weight:700;color:#fff;">${d.costRange}</p>
-                <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.6);">
-                  Based on: ${d.assumptions.join(" · ")}
-                </p>
+                <p style="margin:0 0 4px;font-size:32px;font-weight:700;color:#fff;">${d.pricing.formattedLow} – ${d.pricing.formattedHigh}</p>
               </div>
 
-              <p style="margin:0 0 8px;font-size:12px;color:#78716C;line-height:1.6;">
-                <strong>Note:</strong> This is a preliminary range based on your style and scope inputs. Final pricing is determined after a thorough review of your lot, program, and design direction with our team.
+              <!-- Line items -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;border-collapse:collapse;">
+                ${lineItemRows}
+              </table>
+
+              <p style="margin:0 0 24px;font-size:11px;color:#78716C;line-height:1.6;font-style:italic;">
+                ${d.pricing.disclaimer}
               </p>
 
               <!-- CTA -->
