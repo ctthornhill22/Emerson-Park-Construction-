@@ -273,24 +273,18 @@ export interface CostEstimate {
 
 export interface Stage3Data {
   squareFootage: string;
-  stories: string;
   bedrooms: string;
   bathrooms: string;
-  garageSpaces: string;
-  poolPreference: string;
-  outdoorKitchen: boolean;
-  budgetRange: string;
+  pool: boolean;
+  garageSize: string;
+  specialSpaces: string[];
   timeline: string;
-  lotStatus: string;
   lastName: string;
   phone: string;
-  buildLocation: string;
-  contactPreference: string;
-  meetingType: string;
-  notes: string;
 }
 
 const SQ_FT_MIDPOINTS: Record<string, number> = {
+  // Legacy string-range keys (kept for backwards compat)
   "under-2000": 1750,
   "2000-2499":  2250,
   "2500-2999":  2750,
@@ -355,7 +349,8 @@ export function estimateCost(
   const finishLevel = q10Answer
     ? finishLevelFromDetailAnswer(q10Answer)
     : resolveFinishLevel(primaryFinishCode);
-  const sqft = SQ_FT_MIDPOINTS[s3.squareFootage] ?? 2750;
+  // squareFootage may be a numeric string ("3000") or legacy range key
+  const sqft = parseFloat(s3.squareFootage) || SQ_FT_MIDPOINTS[s3.squareFootage] || 2750;
   const [cpsfLow, cpsfHigh] = COST_PER_SQFT[finishLevel];
 
   let baseLow = sqft * cpsfLow;
@@ -367,20 +362,10 @@ export function estimateCost(
   ];
 
   // Pool
-  const poolYes = ["yes", "likely", "probably"].includes(
-    (s3.poolPreference ?? "").toLowerCase()
-  );
-  if (poolYes) {
+  if (s3.pool) {
     baseLow  += 65_000;
     baseHigh += 120_000;
     assumptions.push("Pool included");
-  }
-
-  // Outdoor kitchen
-  if (s3.outdoorKitchen) {
-    baseLow  += 25_000;
-    baseHigh += 55_000;
-    assumptions.push("Outdoor kitchen included");
   }
 
   // Round to nearest $5K
