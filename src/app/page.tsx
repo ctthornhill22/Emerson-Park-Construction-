@@ -111,7 +111,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 bg-[#9B6B38]/20 border border-[#9B6B38]/40 rounded-full px-4 py-1.5 mb-6">
               <span className="w-2 h-2 bg-[#9B6B38] rounded-full animate-pulse" />
               <span className="text-[#9B6B38] text-sm font-medium">
-                Custom New Home Builder · Ocala, FL
+                Custom Home Design &amp; Construction · Ocala, FL
               </span>
             </div>
 
@@ -121,14 +121,13 @@ export default function Home() {
             </h1>
 
             <p className="text-[#F5EFE4]/60 text-lg sm:text-xl leading-relaxed mb-4 max-w-xl">
-              Most builders ask for your budget first. We ask about your
-              style. Our Home Style Discovery Quiz identifies your
-              architectural direction before we ever sit down together —
-              so every meeting is personalized to you.
+              Most builders ask for your budget first. We ask about your style.
+              Our three-stage Style Quiz delivers an AI rendering, interior mood board,
+              and cost estimate to your inbox — before we ever sit down together.
             </p>
 
             <p className="text-[#F5EFE4]/40 text-sm mb-10">
-              Free · 10–15 minutes · No obligation
+              Free · 21 visual questions · AI rendering + mood board + cost estimate
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -197,15 +196,14 @@ export default function Home() {
               </h2>
               <p className="text-[#78716C] text-lg leading-relaxed mb-6">
                 Most builders start with a budget conversation. We start with{" "}
-                <strong className="text-[#3D3226]">your vision</strong>. Our Home Style Discovery Quiz
-                helps you identify your architectural direction, interior finish
-                preferences, and lifestyle priorities before we ever sit down
-                together.
+                <strong className="text-[#3D3226]">your vision</strong>. Our three-stage Style Quiz
+                identifies your architectural direction, generates an AI exterior rendering,
+                assembles a personalized interior mood board, and delivers a cost estimate range —
+                all before we ever sit down together.
               </p>
               <p className="text-[#78716C] leading-relaxed mb-8">
                 When you come to your discovery meeting, we arrive prepared —
-                with a personalized presentation built around your results, not
-                a generic portfolio pitch.
+                with a presentation built around your results, not a generic portfolio pitch.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -247,7 +245,7 @@ export default function Home() {
                 ))}
               </div>
               <div className="flex items-center justify-between text-[#F5EFE4]/30 text-xs mb-4">
-                <span>Question 1 of 20+ visual questions</span>
+                <span>Stage 1 of 3 · Exterior Discovery</span>
                 <span>Free · 10–15 min</span>
               </div>
               <div className="h-1 bg-[#F5EFE4]/10 rounded-full">
@@ -320,7 +318,7 @@ export default function Home() {
               What We Build
             </span>
             <h2 className="font-display font-bold text-[#1C1A15] text-4xl md:text-5xl mt-2">
-              Our Services
+              Design &amp; Construction Services
             </h2>
             <p className="text-[#78716C] text-lg mt-4 max-w-xl mx-auto">
               From custom new builds to renovations — built right, built to last.
@@ -358,7 +356,7 @@ export default function Home() {
                 Craftsmen Who Communicate
               </h2>
               <p className="text-[#78716C] text-lg leading-relaxed mb-6">
-                Emerson Park Construction was built on a simple belief: every
+                Emerson Park Design &amp; Construction was built on a simple belief: every
                 client deserves honest communication, skilled tradespeople, and
                 a home they are proud to live in.
               </p>
@@ -405,12 +403,12 @@ export default function Home() {
       <section className="py-16 bg-[#9B6B38]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display font-bold text-white text-3xl sm:text-4xl mb-4">
-            Don't Know Where to Start?
+            Don&apos;t Know Where to Start?
           </h2>
           <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
-            The Style Quiz takes 10–15 minutes and gives you a clear
-            architectural direction, interior finish guidance, and a
-            personalized discovery meeting — all free.
+            Our three-stage Style Quiz takes 10–15 minutes and delivers
+            an AI exterior rendering, a curated interior mood board, and a
+            personalized cost estimate range — all free, all sent to your inbox.
           </p>
           <Link
             href="/quiz"

@@ -1,0 +1,218 @@
+/**
+ * POST /api/moodboard
+ *
+ * Called at Stage 2 gate.
+ * Fetches images from Cloudinary folders based on the user's interior style,
+ * saves them to Supabase, and sends the mood board email.
+ */
+
+import { NextRequest, NextResponse } from "next/server";
+import { v2 as cloudinary } from "cloudinary";
+import { Resend } from "resend";
+import { createServiceClient } from "@/lib/supabase";
+import { scoreStage2, getMoodboardFolders } from "@/lib/quiz-scoring";
+import type { QuizAnswers } from "@/lib/quiz-scoring";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json() as {
+      sessionId: string;
+      s2Answers: QuizAnswers;
+    };
+
+    const { sessionId, s2Answers } = body;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: "Missing session ID." }, { status: 400 });
+    }
+
+    // ── Score Stage 2 ──────────────────────────────────────────────────────
+    const { primaryFinish, secondaryFinish, finishScores } = scoreStage2(s2Answers);
+    const folders = getMoodboardFolders(primaryFinish.code, secondaryFinish.code);
+
+    // ── Fetch Cloudinary images ────────────────────────────────────────────
+    let moodboardImages: string[] = [];
+
+    if (process.env.CLOUDINARY_API_KEY) {
+      cloudinary.config({
+        cloud_name:  process.env.CLOUDINARY_CLOUD_NAME,
+        api_key:     process.env.CLOUDINARY_API_KEY,
+        api_secret:  process.env.CLOUDINARY_API_SECRET,
+      });
+      try {
+        // Fetch from primary folder (up to 5 images)
+        const primary = await cloudinary.api.resources_by_asset_folder(
+          folders.primary,
+          { max_results: 5, resource_type: "image" }
+        );
+        // Fetch from secondary folder (up to 3 images)
+        const secondary = await cloudinary.api.resources_by_asset_folder(
+          folders.secondary,
+          { max_results: 3, resource_type: "image" }
+        );
+
+        const toUrl = (r: { secure_url: string }) => r.secure_url;
+        moodboardImages = [
+          ...primary.resources.map(toUrl),
+          ...secondary.resources.map(toUrl),
+        ];
+      } catch (cloudErr) {
+        console.error("Cloudinary error:", cloudErr);
+        // Gracefully continue — email sends without images if Cloudinary fails
+      }
+    }
+
+    // ── Update Supabase ────────────────────────────────────────────────────
+    const supabase = createServiceClient();
+    const { data: session } = await supabase
+      .from("quiz_sessions")
+      .update({
+        s2_answers: s2Answers,
+        primary_finish_style: primaryFinish.code,
+        secondary_finish_style: secondaryFinish.code,
+        finish_scores: finishScores,
+        moodboard_images: moodboardImages,
+        stage_2_completed_at: new Date().toISOString(),
+        stage: "stage_2",
+      })
+      .eq("id", sessionId)
+      .select("first_name, email, rendering_url")
+      .single();
+
+    if (!session?.email) {
+      return NextResponse.json({
+        moodboardImages,
+        primaryFinish: primaryFinish.code,
+        status: "ok",
+      });
+    }
+
+    // ── Send mood board email ──────────────────────────────────────────────
+    const fromEmail = process.env.RESEND_FROM_EMAIL ?? "designs@buildemersonpark.com";
+    const fromName  = process.env.RESEND_FROM_NAME  ?? "Emerson Park Design & Construction";
+
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: `${fromName} <${fromEmail}>`,
+        to: session.email,
+        subject: `${session.first_name ?? "Your"} Interior Mood Board is Ready`,
+        html: moodboardEmailHtml({
+          firstName: session.first_name ?? "There",
+          primaryFinishName: primaryFinish.name,
+          secondaryFinishName: secondaryFinish.name,
+          moodboardImages,
+        }),
+      });
+
+      await supabase
+        .from("quiz_sessions")
+        .update({ moodboard_email_sent_at: new Date().toISOString() })
+        .eq("id", sessionId);
+    }
+
+    return NextResponse.json({
+      moodboardImages,
+      primaryFinish: primaryFinish.code,
+      status: "ok",
+    });
+  } catch (err) {
+    console.error("POST /api/moodboard error:", err);
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+  }
+}
+
+// ─── Email template ───────────────────────────────────────────────────────────
+
+function moodboardEmailHtml({
+  firstName,
+  primaryFinishName,
+  secondaryFinishName,
+  moodboardImages,
+}: {
+  firstName: string;
+  primaryFinishName: string;
+  secondaryFinishName: string;
+  moodboardImages: string[];
+}) {
+  const imageGrid = moodboardImages.length > 0
+    ? moodboardImages
+        .map(
+          (url, i) =>
+            `<img src="${url}" alt="Interior inspiration ${i + 1}" width="${i === 0 ? 520 : 250}"
+              style="width:100%;max-width:${i === 0 ? "520px" : "250px"};border-radius:8px;display:block;margin:0 0 12px;" />`
+        )
+        .join("")
+    : `<p style="color:#78716C;font-size:14px;text-align:center;padding:24px;">Your curated mood board images will appear here once your Cloudinary library is populated.</p>`;
+
+  return /* html */ `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your Interior Mood Board</title>
+</head>
+<body style="margin:0;padding:0;background:#F5EFE4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#3D3226;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5EFE4;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1C1A15;border-radius:12px 12px 0 0;padding:32px 40px;text-align:center;">
+              <div style="display:inline-block;background:#9B6B38;border-radius:6px;padding:8px 14px;font-weight:700;color:#fff;font-size:16px;letter-spacing:1px;">EP</div>
+              <p style="margin:12px 0 0;color:#F5EFE4;font-size:13px;letter-spacing:2px;text-transform:uppercase;">Emerson Park Design &amp; Construction</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#fff;padding:40px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Your Interior Mood Board</p>
+              <h1 style="margin:0 0 16px;font-size:28px;font-weight:700;color:#1C1A15;line-height:1.2;">
+                ${firstName}, your mood board is ready.
+              </h1>
+              <p style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#78716C;">
+                <strong style="color:#3D3226;">Primary direction:</strong> ${primaryFinishName}
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#78716C;">
+                <strong style="color:#3D3226;">Supporting influence:</strong> ${secondaryFinishName}
+              </p>
+
+              <!-- Mood board images -->
+              ${imageGrid}
+
+              <p style="margin:24px 0;font-size:15px;line-height:1.6;color:#78716C;">
+                Complete Stage 3 to tell us about your project scope and receive your personalized cost estimate range.
+              </p>
+
+              <div style="text-align:center;margin:0 0 32px;">
+                <a href="https://buildemersonpark.com/quiz/discover"
+                  style="display:inline-block;background:#9B6B38;color:#fff;font-weight:700;font-size:15px;padding:14px 32px;border-radius:8px;text-decoration:none;">
+                  Complete My Project Profile →
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#1C1A15;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:#F5EFE4;opacity:.5;">
+                Emerson Park Design &amp; Construction · Ocala, FL
+              </p>
+              <p style="margin:0;font-size:12px;color:#F5EFE4;opacity:.4;">
+                <a href="mailto:info@buildemersonpark.com" style="color:#9B6B38;text-decoration:none;">info@buildemersonpark.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}

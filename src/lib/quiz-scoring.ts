@@ -1,146 +1,327 @@
-import type { QuizQuestion } from "./quiz-data";
+/**
+ * Emerson Park Design & Construction
+ * Quiz Scoring Engine + Cost Estimation
+ */
 
-export interface QuizAnswers {
-  [questionId: number]: string | string[];
-}
+import { ARCH_STYLES, FINISH_STYLES, STAGE_1_QUESTIONS, STAGE_2_QUESTIONS } from "./quiz-data";
+import type { StageQuestion } from "./quiz-data";
 
-// Style code definitions
-const ARCH_STYLES: Record<string, string> = {
-  WM: "Warm Modern",
-  MF: "Modern Farmhouse 2.0",
-  TR: "Transitional / New Traditional",
-  CC: "Coastal Contemporary",
-  MS: "Contemporary Mediterranean",
-  OM: "Organic Modern",
-  MC: "Modern Cottage",
-  MB: "Modern Barn",
-  MM: "Mountain Modern",
-  MP: "Modern Prairie",
-};
+export type QuizAnswers = Record<string, string | string[]>;
 
-const FINISH_STYLES: Record<string, string> = {
-  MCL: "Modern Clean",
-  WN: "Warm Natural",
-  CE: "Classic Elevated",
-  CL: "Coastal Light",
-  MT: "Mediterranean Textured",
-  OS: "Organic Spa",
-  CTG: "Cottage Character",
-  RI: "Rustic / Industrial",
-};
+// ─── Style scoring ────────────────────────────────────────────────────────────
 
-// Strong-weight question IDs
-const STRONG_WEIGHT_IDS = [1, 10, 11, 15, 18, 19, 32, 36, 57, 59, 75];
-// Medium-weight question IDs
-const MEDIUM_WEIGHT_IDS = [2, 3, 4, 5, 6, 7, 9, 12, 13, 14, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 33, 34, 35];
-
-function getWeight(questionId: number): number {
-  if (STRONG_WEIGHT_IDS.includes(questionId)) return 3;
-  if (MEDIUM_WEIGHT_IDS.includes(questionId)) return 2;
-  return 1;
+export interface StyleResult {
+  code: string;
+  name: string;
+  score: number;
 }
 
 export interface ScoringResult {
-  primaryArch: { code: string; name: string; score: number };
-  secondaryArch: { code: string; name: string; score: number };
-  primaryFinish: { code: string; name: string; score: number };
-  secondaryFinish: { code: string; name: string; score: number };
-  styleBlend: string;
-  styleSummary: string;
+  primaryArch: StyleResult;
+  secondaryArch: StyleResult;
+  primaryFinish: StyleResult;
+  secondaryFinish: StyleResult;
   archScores: Record<string, number>;
   finishScores: Record<string, number>;
+  styleBlend: string;
+  styleSummary: string;
 }
 
-export function scoreQuiz(
+function tallyScores(
   answers: QuizAnswers,
-  questions: QuizQuestion[]
-): ScoringResult {
-  const archScores: Record<string, number> = {};
-  const finishScores: Record<string, number> = {};
+  questions: StageQuestion[],
+  archScores: Record<string, number>,
+  finishScores: Record<string, number>
+) {
+  questions.forEach((q) => {
+    const answer = answers[q.id];
+    if (!answer) return;
 
-  // Initialize all scores to 0
-  Object.keys(ARCH_STYLES).forEach((code) => (archScores[code] = 0));
-  Object.keys(FINISH_STYLES).forEach((code) => (finishScores[code] = 0));
+    const selectedIds: string[] = Array.isArray(answer) ? answer : [answer];
 
-  // Tally scores from all answers
-  questions.forEach((question) => {
-    const answer = answers[question.id];
-    if (!answer || !question.options) return;
+    // Consolidation questions (last question of each stage) get extra weight
+    const isConsolidation =
+      q.id === "ext_11" || q.id === "int_10";
+    const weight = isConsolidation ? 3 : 1;
 
-    const selectedIds = Array.isArray(answer) ? answer : [answer];
-    const weight = getWeight(question.id);
-
-    selectedIds.forEach((selectedId) => {
-      const option = question.options!.find((o) => o.id === selectedId);
+    selectedIds.forEach((sid) => {
+      const option = q.options.find((o) => o.id === sid);
       if (!option) return;
-
-      option.signals.forEach((signal) => {
-        if (signal in archScores) {
-          archScores[signal] += weight;
-        } else if (signal in finishScores) {
-          finishScores[signal] += weight;
-        }
+      option.signals.forEach((sig) => {
+        if (sig in archScores) archScores[sig] += weight;
+        else if (sig in finishScores) finishScores[sig] += weight;
       });
     });
   });
+}
 
-  // Sort arch styles by score
-  const sortedArch = Object.entries(archScores)
-    .filter(([, score]) => score > 0)
+export function scoreStage1(answers: QuizAnswers): {
+  primaryArch: StyleResult;
+  secondaryArch: StyleResult;
+  archScores: Record<string, number>;
+} {
+  const archScores: Record<string, number> = {};
+  const finishScores: Record<string, number> = {};
+  Object.keys(ARCH_STYLES).forEach((k) => (archScores[k] = 0));
+  Object.keys(FINISH_STYLES).forEach((k) => (finishScores[k] = 0));
+
+  tallyScores(answers, STAGE_1_QUESTIONS, archScores, finishScores);
+
+  const sorted = Object.entries(archScores)
     .sort(([, a], [, b]) => b - a);
 
-  const sortedFinish = Object.entries(finishScores)
-    .filter(([, score]) => score > 0)
-    .sort(([, a], [, b]) => b - a);
-
-  const primaryArch = sortedArch[0] || ["WM", 0];
-  const secondaryArch = sortedArch[1] || ["TR", 0];
-  const primaryFinish = sortedFinish[0] || ["WN", 0];
-  const secondaryFinish = sortedFinish[1] || ["MCL", 0];
-
-  const primaryArchName = ARCH_STYLES[primaryArch[0]] || primaryArch[0];
-  const secondaryArchName = ARCH_STYLES[secondaryArch[0]] || secondaryArch[0];
-  const primaryFinishName = FINISH_STYLES[primaryFinish[0]] || primaryFinish[0];
-  const secondaryFinishName = FINISH_STYLES[secondaryFinish[0]] || secondaryFinish[0];
-
-  const styleBlend = `${primaryArchName} exterior with ${secondaryArchName} influences and ${primaryFinishName} interiors`;
-
-  const styleSummary = generateSummary(primaryArch[0], secondaryArch[0], primaryFinish[0]);
-
+  const [p, s] = sorted;
   return {
     primaryArch: {
-      code: primaryArch[0],
-      name: primaryArchName,
-      score: primaryArch[1],
+      code: p?.[0] ?? "WM",
+      name: ARCH_STYLES[p?.[0] ?? "WM"],
+      score: p?.[1] ?? 0,
     },
     secondaryArch: {
-      code: secondaryArch[0],
-      name: secondaryArchName,
-      score: secondaryArch[1],
+      code: s?.[0] ?? "TR",
+      name: ARCH_STYLES[s?.[0] ?? "TR"],
+      score: s?.[1] ?? 0,
     },
+    archScores,
+  };
+}
+
+export function scoreStage2(answers: QuizAnswers): {
+  primaryFinish: StyleResult;
+  secondaryFinish: StyleResult;
+  finishScores: Record<string, number>;
+} {
+  const archScores: Record<string, number> = {};
+  const finishScores: Record<string, number> = {};
+  Object.keys(ARCH_STYLES).forEach((k) => (archScores[k] = 0));
+  Object.keys(FINISH_STYLES).forEach((k) => (finishScores[k] = 0));
+
+  tallyScores(answers, STAGE_2_QUESTIONS, archScores, finishScores);
+
+  const sorted = Object.entries(finishScores)
+    .sort(([, a], [, b]) => b - a);
+
+  const [p, s] = sorted;
+  return {
     primaryFinish: {
-      code: primaryFinish[0],
-      name: primaryFinishName,
-      score: primaryFinish[1],
+      code: p?.[0] ?? "WN",
+      name: FINISH_STYLES[p?.[0] ?? "WN"],
+      score: p?.[1] ?? 0,
     },
     secondaryFinish: {
-      code: secondaryFinish[0],
-      name: secondaryFinishName,
-      score: secondaryFinish[1],
+      code: s?.[0] ?? "MCL",
+      name: FINISH_STYLES[s?.[0] ?? "MCL"],
+      score: s?.[1] ?? 0,
     },
-    styleBlend,
-    styleSummary,
-    archScores,
     finishScores,
   };
 }
+
+export function buildFullResult(
+  s1Result: ReturnType<typeof scoreStage1>,
+  s2Result: ReturnType<typeof scoreStage2>
+): ScoringResult {
+  const { primaryArch, secondaryArch, archScores } = s1Result;
+  const { primaryFinish, secondaryFinish, finishScores } = s2Result;
+
+  const styleBlend = `${primaryArch.name} exterior with ${secondaryArch.name} influences and ${primaryFinish.name} interiors`;
+  const styleSummary = generateSummary(primaryArch.code, secondaryArch.code, primaryFinish.code);
+
+  return {
+    primaryArch,
+    secondaryArch,
+    primaryFinish,
+    secondaryFinish,
+    archScores,
+    finishScores,
+    styleBlend,
+    styleSummary,
+  };
+}
+
+// ─── Rendering prompt builder ─────────────────────────────────────────────────
+
+const ARCH_PROMPT_FRAGMENTS: Record<string, string> = {
+  WM: "warm modern residential architecture, clean geometric massing, large floor-to-ceiling windows, warm wood cladding, concrete and stone accents, open to outdoor living",
+  MF: "modern farmhouse architecture, white board and batten siding, black steel window frames, gabled metal roof, covered front porch, approachable luxury",
+  TR: "traditional estate home, red brick or painted brick exterior, classical columns, formal symmetrical facade, painted shutters, lush landscaping",
+  CC: "coastal contemporary residence, pale stucco exterior, large folding glass doors, pool visible, tropical landscaping, light airy palette, casual luxury",
+  MS: "contemporary Mediterranean revival, terracotta tile roof, arched windows and doorways, warm stucco exterior, wrought iron details, courtyard feel",
+  OM: "organic modern home, natural stone cladding, flat or low-slope roof, earth tones, native landscaping, quiet luxury, indoor-outdoor flow",
+  MC: "modern cottage, steeply pitched roof, decorative trim, warm painted exterior, charming garden approach, intimate human scale",
+  MB: "modern barn residence, vertical board and batten metal siding, large barn-style entry, dramatic roofline, industrial-meets-residential",
+  MM: "mountain modern home, stone and timber exterior facade, dramatic pitched metal roof, generous overhangs, rustic yet refined",
+  MP: "modern prairie home, pronounced horizontal massing, ribbon windows, low-pitched roof, earth-tone palette, land-hugging profile",
+};
+
+export function buildRenderingPrompt(archCodes: string[]): string {
+  const primary = ARCH_PROMPT_FRAGMENTS[archCodes[0]] || ARCH_PROMPT_FRAGMENTS.WM;
+  const secondary = archCodes[1] ? `, with ${ARCH_PROMPT_FRAGMENTS[archCodes[1]]?.split(",")[0]} influences` : "";
+
+  return [
+    `Photorealistic architectural rendering of a luxury custom home in Ocala Florida,`,
+    `${primary}${secondary},`,
+    `golden hour lighting, lush mature landscaping, resort-quality outdoor living,`,
+    `professional architectural photography, ultra-high detail, 8K, award-winning residential design,`,
+    `blue sky with light clouds, immaculate condition`,
+  ].join(" ");
+}
+
+// ─── Cloudinary mood board folder selection ───────────────────────────────────
+
+/** Map finish style codes to Cloudinary folder paths.
+ *  Populate these folders in your Cloudinary account with curated images. */
+export function getMoodboardFolders(
+  primaryFinish: string,
+  secondaryFinish: string
+): { primary: string; secondary: string } {
+  const folderMap: Record<string, string> = {
+    MCL: "emerson-park/interior/modern-clean",
+    WN:  "emerson-park/interior/warm-natural",
+    CE:  "emerson-park/interior/classic-elevated",
+    CL:  "emerson-park/interior/coastal-light",
+    MT:  "emerson-park/interior/mediterranean-textured",
+    OS:  "emerson-park/interior/organic-spa",
+    CTG: "emerson-park/interior/cottage-character",
+    RI:  "emerson-park/interior/rustic-industrial",
+  };
+
+  return {
+    primary: folderMap[primaryFinish] ?? folderMap.WN,
+    secondary: folderMap[secondaryFinish] ?? folderMap.MCL,
+  };
+}
+
+// ─── Cost estimation ──────────────────────────────────────────────────────────
+
+export type FinishLevel = "standard" | "elevated" | "luxury" | "ultra";
+
+export interface CostEstimate {
+  low: number;
+  high: number;
+  finishLevel: FinishLevel;
+  formatted: {
+    low: string;
+    high: string;
+    range: string;
+  };
+  assumptions: string[];
+}
+
+export interface Stage3Data {
+  squareFootage: string;
+  stories: string;
+  bedrooms: string;
+  bathrooms: string;
+  garageSpaces: string;
+  poolPreference: string;
+  outdoorKitchen: boolean;
+  budgetRange: string;
+  timeline: string;
+  lotStatus: string;
+  lastName: string;
+  phone: string;
+  buildLocation: string;
+  contactPreference: string;
+  meetingType: string;
+  notes: string;
+}
+
+const SQ_FT_MIDPOINTS: Record<string, number> = {
+  "under-2000": 1750,
+  "2000-2499":  2250,
+  "2500-2999":  2750,
+  "3000-3499":  3250,
+  "3500-3999":  3750,
+  "4000-4999":  4500,
+  "5000+":      5500,
+  "not-sure":   2750,
+};
+
+const COST_PER_SQFT: Record<FinishLevel, [number, number]> = {
+  standard: [185, 235],
+  elevated: [235, 295],
+  luxury:   [295, 365],
+  ultra:    [365, 445],
+};
+
+function resolveFinishLevel(finishCode: string): FinishLevel {
+  const luxuryCodes = new Set(["MCL", "WM", "CE", "OS"]);
+  const elevatedCodes = new Set(["WN", "CL", "TR", "MT"]);
+  const standardCodes = new Set(["CTG", "MF", "MB"]);
+
+  if (luxuryCodes.has(finishCode)) return "luxury";
+  if (elevatedCodes.has(finishCode)) return "elevated";
+  if (standardCodes.has(finishCode)) return "standard";
+  return "elevated"; // sensible default
+}
+
+function formatDollar(n: number): string {
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return `$${m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)}M`;
+  }
+  return `$${(n / 1000).toFixed(0)}K`;
+}
+
+export function estimateCost(
+  s3: Stage3Data,
+  primaryFinishCode: string
+): CostEstimate {
+  const finishLevel = resolveFinishLevel(primaryFinishCode);
+  const sqft = SQ_FT_MIDPOINTS[s3.squareFootage] ?? 2750;
+  const [cpsfLow, cpsfHigh] = COST_PER_SQFT[finishLevel];
+
+  let baseLow = sqft * cpsfLow;
+  let baseHigh = sqft * cpsfHigh;
+
+  const assumptions: string[] = [
+    `${sqft.toLocaleString()} sq ft estimate`,
+    `${finishLevel.charAt(0).toUpperCase() + finishLevel.slice(1)} finish level`,
+  ];
+
+  // Pool
+  const poolYes = ["yes", "likely", "probably"].includes(
+    (s3.poolPreference ?? "").toLowerCase()
+  );
+  if (poolYes) {
+    baseLow  += 65_000;
+    baseHigh += 120_000;
+    assumptions.push("Pool included");
+  }
+
+  // Outdoor kitchen
+  if (s3.outdoorKitchen) {
+    baseLow  += 25_000;
+    baseHigh += 55_000;
+    assumptions.push("Outdoor kitchen included");
+  }
+
+  // Round to nearest $5K
+  const low  = Math.round(baseLow  / 5000) * 5000;
+  const high = Math.round(baseHigh / 5000) * 5000;
+
+  return {
+    low,
+    high,
+    finishLevel,
+    formatted: {
+      low:   formatDollar(low),
+      high:  formatDollar(high),
+      range: `${formatDollar(low)} – ${formatDollar(high)}`,
+    },
+    assumptions,
+  };
+}
+
+// ─── Prose summary generator ──────────────────────────────────────────────────
 
 function generateSummary(
   primaryArch: string,
   secondaryArch: string,
   primaryFinish: string
 ): string {
-  const descriptions: Record<string, string> = {
+  const archDescriptions: Record<string, string> = {
     WM: "clean modern architecture, warm natural materials, and large windows that feel open and livable",
     MF: "approachable modern design, gabled rooflines, and a home that feels casual, family-friendly, and beautiful",
     TR: "timeless traditional architecture with modern sensibilities, symmetry, and enduring appeal",
@@ -155,17 +336,17 @@ function generateSummary(
 
   const finishDescriptions: Record<string, string> = {
     MCL: "clean, minimal, and precisely modern interiors",
-    WN: "warm natural wood tones, organic textures, and relaxed luxury finishes",
-    CE: "elevated classical interiors with refined millwork and timeless finish selections",
-    CL: "bright, airy coastal interiors with a relaxed and light-filled palette",
-    MT: "textured, handcrafted Mediterranean-inspired interiors with warmth and depth",
-    OS: "spa-inspired, wellness-forward interiors that feel calm and elevated",
+    WN:  "warm natural wood tones, organic textures, and relaxed luxury finishes",
+    CE:  "elevated classical interiors with refined millwork and timeless finish selections",
+    CL:  "bright, airy coastal interiors with a relaxed and light-filled palette",
+    MT:  "textured, handcrafted Mediterranean-inspired interiors with warmth and depth",
+    OS:  "spa-inspired, wellness-forward interiors that feel calm and elevated",
     CTG: "cottage-character interiors with personality, charm, and layered detail",
-    RI: "raw and dramatic rustic-industrial interiors with bold material choices",
+    RI:  "raw and dramatic rustic-industrial interiors with bold material choices",
   };
 
-  const archDesc = descriptions[primaryArch] || "a distinctive and personalized architectural direction";
-  const finishDesc = finishDescriptions[primaryFinish] || "thoughtfully selected interior finishes";
+  const archDesc    = archDescriptions[primaryArch]    ?? "a distinctive architectural direction";
+  const finishDesc  = finishDescriptions[primaryFinish] ?? "thoughtfully selected interior finishes";
 
   return `Your selections show a clear preference for ${archDesc}. The finish direction points toward ${finishDesc}. Rather than a single rigid style, your answers point to a layered and intentional direction that feels personal — not copied from a plan book.`;
 }
