@@ -16,13 +16,13 @@ export default function Footer() {
                   Emerson Park
                 </div>
                 <div className="text-[#9B6B38] text-xs tracking-widest uppercase">
-                  Construction
+                  Design &amp; Construction
                 </div>
               </div>
             </div>
             <p className="text-white/60 text-sm leading-relaxed">
-              Quality residential and commercial construction, renovation, and
-              remodeling. Built right. Built to last.
+              Custom home design and construction in Ocala, FL. Style-first
+              approach. Built right. Built to last.
             </p>
           </div>
 

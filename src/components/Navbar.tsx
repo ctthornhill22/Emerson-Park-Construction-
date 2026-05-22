@@ -26,7 +26,7 @@ export default function Navbar() {
               Emerson Park
             </span>
             <span className="text-[#9B6B38] text-xs font-medium tracking-widest uppercase">
-              Construction
+              Design &amp; Construction
             </span>
           </div>
         </Link>

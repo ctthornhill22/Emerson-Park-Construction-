@@ -17,17 +17,17 @@ const jost = Jost({
 
 export const metadata: Metadata = {
   title: {
-    default: "Emerson Park Construction | Custom Home Builder Ocala FL",
-    template: "%s | Emerson Park Construction",
+    default: "Emerson Park Design & Construction | Custom Home Builder Ocala FL",
+    template: "%s | Emerson Park Design & Construction",
   },
   description:
-    "Emerson Park Construction crafts custom homes with a style-first approach. Discover your architectural direction with our Home Style Discovery Quiz before we ever meet.",
+    "Emerson Park Design & Construction crafts custom homes with a style-first approach. Take our three-stage Style Quiz and receive an AI rendering, interior mood board, and cost estimate — free.",
   metadataBase: new URL("https://buildemersonpark.com"),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://buildemersonpark.com",
-    siteName: "Emerson Park Construction",
+    siteName: "Emerson Park Design & Construction",
   },
 };
 
