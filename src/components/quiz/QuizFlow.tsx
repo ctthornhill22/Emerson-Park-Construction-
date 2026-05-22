@@ -90,7 +90,7 @@ export default function QuizFlow() {
     ) => {
       setAnswers((prev) => {
         const current = prev[q.id];
-        if (q.type === "single") {
+        if (q.type === "single" || q.selectionMode === "single") {
           return { ...prev, [q.id]: optionId };
         }
         const arr = Array.isArray(current) ? current : [];
@@ -416,10 +416,12 @@ function QuestionView({
 
         {/* Question */}
         <h2 className="font-display font-bold text-[#1C1A15] text-2xl sm:text-3xl lg:text-4xl leading-tight mb-2">
-          {question.prompt}
+          {question.heading ?? question.prompt}
         </h2>
         <p className="text-[#78716C] text-sm mb-8">
-          {question.type === "single"
+          {question.subheading
+            ? question.subheading
+            : question.type === "single" || question.selectionMode === "single"
             ? "Choose one"
             : question.type === "multi-limited"
             ? `Select up to ${question.maxSelections}`
@@ -483,6 +485,10 @@ function OptionCard({
   selected: boolean;
   onClick: () => void;
 }) {
+  // Stage 1 options use imageFolder/tags (no gradient/emoji)
+  // Stage 2 options use gradient/emoji
+  const hasGradient = Boolean(option.gradient);
+
   return (
     <button
       onClick={onClick}
@@ -492,20 +498,31 @@ function OptionCard({
           : "border-[#EDE5D4] hover:border-[#9B6B38]/40 hover:scale-[1.01]"
       }`}
     >
-      {/* Gradient layer */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${option.gradient} transition-opacity duration-200 ${
-          selected ? "opacity-20" : "opacity-8 group-hover:opacity-12"
-        }`}
-      />
-      {/* White overlay */}
-      <div
-        className="absolute inset-0 bg-[#FDFAF5]"
-        style={{ opacity: selected ? 0.82 : 0.92 }}
-      />
+      {/* Background: gradient for Stage 2, solid warm for Stage 1 */}
+      {hasGradient ? (
+        <>
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${option.gradient} transition-opacity duration-200 ${
+              selected ? "opacity-20" : "opacity-8 group-hover:opacity-12"
+            }`}
+          />
+          <div
+            className="absolute inset-0 bg-[#FDFAF5]"
+            style={{ opacity: selected ? 0.82 : 0.92 }}
+          />
+        </>
+      ) : (
+        <div
+          className={`absolute inset-0 transition-colors duration-200 ${
+            selected ? "bg-[#9B6B38]/8" : "bg-[#FDFAF5] group-hover:bg-[#F5EFE4]"
+          }`}
+        />
+      )}
 
       <div className="relative p-4 sm:p-5">
-        <div className="text-2xl mb-2">{option.emoji}</div>
+        {option.emoji && (
+          <div className="text-2xl mb-2">{option.emoji}</div>
+        )}
         <div
           className={`font-display font-semibold text-sm leading-tight mb-1 transition-colors ${
             selected ? "text-[#9B6B38]" : "text-[#1C1A15]"

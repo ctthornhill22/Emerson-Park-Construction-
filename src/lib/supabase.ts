@@ -5,10 +5,13 @@ import { createClient } from "@supabase/supabase-js";
 // This prevents "supabaseUrl is required" errors during Next.js static build,
 // when NEXT_PUBLIC_* env vars haven't been injected yet.
 
-/** Browser / client-side Supabase client (uses anon key). */
+/** Browser / client-side Supabase client (uses publishable/anon key). */
 export function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  // Supports both the new publishable key name and the legacy anon key name
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+           ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+           ?? "";
   return createClient(url, key);
 }
 

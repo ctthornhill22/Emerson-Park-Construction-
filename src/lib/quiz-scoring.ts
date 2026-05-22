@@ -27,33 +27,20 @@ export interface ScoringResult {
   styleSummary: string;
 }
 
-function tallyScores(
-  answers: QuizAnswers,
-  questions: StageQuestion[],
-  archScores: Record<string, number>,
-  finishScores: Record<string, number>
-) {
-  questions.forEach((q) => {
-    const answer = answers[q.id];
-    if (!answer) return;
-
-    const selectedIds: string[] = Array.isArray(answer) ? answer : [answer];
-
-    // Consolidation questions (last question of each stage) get extra weight
-    const isConsolidation =
-      q.id === "ext_11" || q.id === "int_10";
-    const weight = isConsolidation ? 3 : 1;
-
-    selectedIds.forEach((sid) => {
-      const option = q.options.find((o) => o.id === sid);
-      if (!option) return;
-      option.signals.forEach((sig) => {
-        if (sig in archScores) archScores[sig] += weight;
-        else if (sig in finishScores) finishScores[sig] += weight;
-      });
-    });
-  });
-}
+// Per-question weights for Stage 1 (from strategy session)
+const STAGE_1_WEIGHTS: Record<string, number> = {
+  q1_primary_style:     3,    // Single select — highest weight
+  q2_secondary_style:   2,    // Secondary style — high weight
+  q3_lifestyle_feel:    2,    // Lifestyle feel — high weight
+  q4_color_palette:     1,
+  q5_primary_materials: 1.5,
+  q6_secondary_materials: 1,
+  q7_window_style:      1,
+  q8_front_entry:       1,
+  q9_garage_arrival:    0.5,
+  q10_pool:             0.5,
+  q11_outdoor_living:   0.5,
+};
 
 export function scoreStage1(answers: QuizAnswers): {
   primaryArch: StyleResult;
@@ -61,15 +48,27 @@ export function scoreStage1(answers: QuizAnswers): {
   archScores: Record<string, number>;
 } {
   const archScores: Record<string, number> = {};
-  const finishScores: Record<string, number> = {};
   Object.keys(ARCH_STYLES).forEach((k) => (archScores[k] = 0));
-  Object.keys(FINISH_STYLES).forEach((k) => (finishScores[k] = 0));
 
-  tallyScores(answers, STAGE_1_QUESTIONS, archScores, finishScores);
+  STAGE_1_QUESTIONS.forEach((q) => {
+    const answer = answers[q.id];
+    if (!answer) return;
 
-  const sorted = Object.entries(archScores)
-    .sort(([, a], [, b]) => b - a);
+    const selectedIds: string[] = Array.isArray(answer) ? answer : [answer];
+    const weight = STAGE_1_WEIGHTS[q.id] ?? 1;
 
+    selectedIds.forEach((sid) => {
+      const option = q.options.find((o) => o.id === sid);
+      if (!option) return;
+      // Stage 1 options use `tags`; only tally known arch style codes
+      const signals = option.tags ?? option.signals ?? [];
+      signals.forEach((sig) => {
+        if (sig in archScores) archScores[sig] += weight;
+      });
+    });
+  });
+
+  const sorted = Object.entries(archScores).sort(([, a], [, b]) => b - a);
   const [p, s] = sorted;
   return {
     primaryArch: {
@@ -84,6 +83,33 @@ export function scoreStage1(answers: QuizAnswers): {
     },
     archScores,
   };
+}
+
+function tallyScores(
+  answers: QuizAnswers,
+  questions: StageQuestion[],
+  archScores: Record<string, number>,
+  finishScores: Record<string, number>
+) {
+  questions.forEach((q) => {
+    const answer = answers[q.id];
+    if (!answer) return;
+
+    const selectedIds: string[] = Array.isArray(answer) ? answer : [answer];
+
+    // Stage 2 consolidation question gets extra weight
+    const weight = q.id === "int_10" ? 3 : 1;
+
+    selectedIds.forEach((sid) => {
+      const option = q.options.find((o) => o.id === sid);
+      if (!option) return;
+      const signals = option.signals ?? option.tags ?? [];
+      signals.forEach((sig) => {
+        if (sig in archScores) archScores[sig] += weight;
+        else if (sig in finishScores) finishScores[sig] += weight;
+      });
+    });
+  });
 }
 
 export function scoreStage2(answers: QuizAnswers): {
