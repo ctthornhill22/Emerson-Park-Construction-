@@ -97,8 +97,9 @@ export default function QuizFlow() {
         if (arr.includes(optionId)) {
           return { ...prev, [q.id]: arr.filter((id) => id !== optionId) };
         }
+        // At max — block silently; QuestionView shows the user-facing message
         if (q.maxSelections && arr.length >= q.maxSelections) {
-          return { ...prev, [q.id]: [...arr.slice(1), optionId] };
+          return prev;
         }
         return { ...prev, [q.id]: [...arr, optionId] };
       });
@@ -369,6 +370,28 @@ function QuestionView({
   nextLabel: string;
   finalLabel: string;
 }) {
+  const [maxSelMsg, setMaxSelMsg] = useState<string | null>(null);
+
+  // Clear message whenever the question changes
+  useEffect(() => {
+    setMaxSelMsg(null);
+  }, [question.id]);
+
+  const handleOptionClick = (optId: string) => {
+    const current = answers[question.id];
+    const arr = Array.isArray(current) ? current : [];
+    const alreadySelected = arr.includes(optId);
+
+    // If we're at max and the user taps a NEW option → show message, don't toggle
+    if (question.maxSelections && arr.length >= question.maxSelections && !alreadySelected) {
+      setMaxSelMsg("You've selected 2. Remove one to choose a different option.");
+      return;
+    }
+
+    setMaxSelMsg(null);
+    onToggle(question, optId);
+  };
+
   const hasAnswer = (() => {
     const a = answers[question.id];
     return Array.isArray(a) ? a.length > 0 : Boolean(a);
@@ -429,16 +452,25 @@ function QuestionView({
         </p>
 
         {/* Options grid */}
-        <div className={`grid gap-3 mb-10 ${cols}`}>
+        <div className={`grid gap-3 mb-4 ${cols}`}>
           {question.options.map((option) => (
             <OptionCard
               key={option.id}
               option={option}
               selected={isSelected(question.id, option.id)}
-              onClick={() => onToggle(question, option.id)}
+              onClick={() => handleOptionClick(option.id)}
             />
           ))}
         </div>
+
+        {/* Max-selection nudge */}
+        {maxSelMsg ? (
+          <p className="text-center text-amber-700 text-sm font-medium mb-6 animate-fade-in">
+            {maxSelMsg}
+          </p>
+        ) : (
+          <div className="mb-6" />
+        )}
 
         {/* Navigation */}
         <div className="flex items-center justify-between">
