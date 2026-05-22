@@ -42,6 +42,20 @@ const STAGE_1_WEIGHTS: Record<string, number> = {
   q11_outdoor_living:   0.5,
 };
 
+// Per-question weights for Stage 2 (from strategy session)
+const STAGE_2_WEIGHTS: Record<string, number> = {
+  q1_interior_direction:    3,   // Overall direction — highest weight
+  q2_flooring:              1.5,
+  q3_cabinet_style:         1.5,
+  q4_cabinet_color:         1,
+  q5_countertop_backsplash: 2,   // Surface selection — high weight
+  q6_primary_bathroom:      3,   // Primary bath — highest weight
+  q7_windows_doors:         1,
+  q8_ceiling_volume:        1,
+  q9_lighting_hardware:     1,
+  q10_detail_level:         3,   // Detail level — highest weight (drives cost)
+};
+
 export function scoreStage1(answers: QuizAnswers): {
   primaryArch: StyleResult;
   secondaryArch: StyleResult;
@@ -97,13 +111,13 @@ function tallyScores(
 
     const selectedIds: string[] = Array.isArray(answer) ? answer : [answer];
 
-    // Stage 2 consolidation question gets extra weight
-    const weight = q.id === "int_10" ? 3 : 1;
+    // Use Stage 2 per-question weights; fall back to 1 for unknown questions
+    const weight = STAGE_2_WEIGHTS[q.id] ?? 1;
 
     selectedIds.forEach((sid) => {
       const option = q.options.find((o) => o.id === sid);
       if (!option) return;
-      const signals = option.signals ?? option.tags ?? [];
+      const signals = option.tags ?? option.signals ?? [];
       signals.forEach((sig) => {
         if (sig in archScores) archScores[sig] += weight;
         else if (sig in finishScores) finishScores[sig] += weight;
@@ -195,27 +209,50 @@ export function buildRenderingPrompt(archCodes: string[]): string {
 
 // ─── Cloudinary mood board folder selection ───────────────────────────────────
 
-/** Map finish style codes to Cloudinary folder paths.
- *  Populate these folders in your Cloudinary account with curated images. */
+/** Map finish style codes to Cloudinary room-type folder paths.
+ *  Folders follow the moodboards/* naming convention set up in Cloudinary. */
 export function getMoodboardFolders(
   primaryFinish: string,
   secondaryFinish: string
 ): { primary: string; secondary: string } {
+  // Each finish style is best represented by a particular room category.
   const folderMap: Record<string, string> = {
-    MCL: "emerson-park/interior/modern-clean",
-    WN:  "emerson-park/interior/warm-natural",
-    CE:  "emerson-park/interior/classic-elevated",
-    CL:  "emerson-park/interior/coastal-light",
-    MT:  "emerson-park/interior/mediterranean-textured",
-    OS:  "emerson-park/interior/organic-spa",
-    CTG: "emerson-park/interior/cottage-character",
-    RI:  "emerson-park/interior/rustic-industrial",
+    MCL: "moodboards/living-rooms",
+    WN:  "moodboards/living-rooms",
+    CE:  "moodboards/kitchens",
+    CL:  "moodboards/primary-bathrooms",
+    MT:  "moodboards/primary-bathrooms",
+    OS:  "moodboards/primary-bathrooms",
+    CTG: "moodboards/kitchens",
+    RI:  "moodboards/living-rooms",
   };
 
   return {
-    primary: folderMap[primaryFinish] ?? folderMap.WN,
-    secondary: folderMap[secondaryFinish] ?? folderMap.MCL,
+    primary:   folderMap[primaryFinish]   ?? "moodboards/living-rooms",
+    secondary: folderMap[secondaryFinish] ?? "moodboards/kitchens",
   };
+}
+
+/** Build specific Cloudinary image paths from Stage 2 selected option images.
+ *  Returns the exact images the user chose during the quiz — ideal for assembling
+ *  a personalised mood board without any additional Cloudinary listing calls. */
+export function buildMoodboardImagePaths(
+  s2Answers: QuizAnswers,
+  questions: StageQuestion[]
+): string[] {
+  const paths: string[] = [];
+  questions.forEach((q) => {
+    const answer = s2Answers[q.id];
+    if (!answer) return;
+    const selectedIds = Array.isArray(answer) ? answer : [answer];
+    selectedIds.forEach((sid) => {
+      const option = q.options.find((o) => o.id === sid);
+      if (option?.imageFolder && option?.imageName) {
+        paths.push(`${option.imageFolder}/${option.imageName}`);
+      }
+    });
+  });
+  return paths;
 }
 
 // ─── Cost estimation ──────────────────────────────────────────────────────────
@@ -282,6 +319,23 @@ function resolveFinishLevel(finishCode: string): FinishLevel {
   return "elevated"; // sensible default
 }
 
+/** Maps the Q10 detail-level answer ID to a FinishLevel for cost estimation.
+ *  Q10 is the strongest cost signal — it directly maps to build complexity. */
+export function finishLevelFromDetailAnswer(
+  q10Answer: string | string[] | undefined
+): FinishLevel {
+  const answer = Array.isArray(q10Answer) ? q10Answer[0] : q10Answer;
+  switch (answer) {
+    case "minimal_clean":             return "standard";
+    case "clean_wood_accents":
+    case "board_batten_shiplap":      return "elevated";
+    case "refined_traditional":
+    case "full_wall_paneling":        return "luxury";
+    case "custom_statement_millwork": return "ultra";
+    default:                          return "elevated"; // sensible default
+  }
+}
+
 function formatDollar(n: number): string {
   if (n >= 1_000_000) {
     const m = n / 1_000_000;
@@ -292,9 +346,15 @@ function formatDollar(n: number): string {
 
 export function estimateCost(
   s3: Stage3Data,
-  primaryFinishCode: string
+  primaryFinishCode: string,
+  /** Optional: Q10 answer ID from Stage 2. When provided, overrides finish-code
+   *  inference — Q10 is the strongest cost signal in the quiz. */
+  q10Answer?: string | string[]
 ): CostEstimate {
-  const finishLevel = resolveFinishLevel(primaryFinishCode);
+  // Q10 answer takes precedence; fall back to primary finish code derivation.
+  const finishLevel = q10Answer
+    ? finishLevelFromDetailAnswer(q10Answer)
+    : resolveFinishLevel(primaryFinishCode);
   const sqft = SQ_FT_MIDPOINTS[s3.squareFootage] ?? 2750;
   const [cpsfLow, cpsfHigh] = COST_PER_SQFT[finishLevel];
 
