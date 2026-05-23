@@ -11,6 +11,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { buildFullResult, scoreStage1, scoreStage2 } from "@/lib/quiz-scoring";
 import type { Stage3Data } from "@/lib/quiz-scoring";
 import { calculatePriceRange } from "@/lib/stage3-form-data";
+import { getBlendDescription } from "@/lib/style-matrix";
 import type { PricingResult } from "@/lib/stage3-form-data";
 
 export async function POST(req: NextRequest) {
@@ -42,6 +43,14 @@ export async function POST(req: NextRequest) {
     const s1Result   = scoreStage1(session.s1_answers ?? {});
     const s2Result   = scoreStage2(session.s2_answers ?? {});
     const fullResult = buildFullResult(s1Result, s2Result);
+
+    // ── Generate personalised blend statement ─────────────────────────────
+    const blendResult = getBlendDescription(
+      fullResult.primaryArch.code,
+      fullResult.secondaryArch.code,
+      fullResult.primaryFinish.code,
+      fullResult.secondaryFinish.code,
+    );
 
     // ── Cost estimate — use Q10 answer as the finish multiplier key ─────────
     const s2Answers = session.s2_answers ?? {};
@@ -96,6 +105,7 @@ export async function POST(req: NextRequest) {
             secondaryArchStyle:     fullResult.secondaryArch.name,
             primaryFinishStyle:     fullResult.primaryFinish.name,
             styleBlend:             fullResult.styleBlend,
+            blendStatement:         blendResult.fullStatement,
             squareFootage:          s3Data.squareFootage,
             bedrooms:               s3Data.bedrooms,
             bathrooms:              s3Data.bathrooms,
@@ -149,7 +159,7 @@ export async function POST(req: NextRequest) {
           primaryFinish:   fullResult.primaryFinish.name,
           secondaryFinish: fullResult.secondaryFinish.name,
           styleBlend:      fullResult.styleBlend,
-          styleSummary:    fullResult.styleSummary,
+          blendStatement:  blendResult.fullStatement,
           pricing,
           renderingUrl:    session.rendering_url ?? null,
           moodboardImages: session.moodboard_images ?? [],
@@ -185,7 +195,7 @@ function conceptEmailHtml(d: {
   primaryFinish: string;
   secondaryFinish: string;
   styleBlend: string;
-  styleSummary: string;
+  blendStatement: string;
   pricing: PricingResult;
   renderingUrl: string | null;
   moodboardImages: string[];
@@ -266,7 +276,7 @@ function conceptEmailHtml(d: {
                 <p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#9B6B38;">Your Design Direction</p>
                 <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1C1A15;">${d.primaryArch}</p>
                 <p style="margin:0 0 16px;font-size:14px;color:#78716C;">with ${d.secondaryArch} influences · ${d.primaryFinish} interiors</p>
-                <p style="margin:0;font-size:13px;line-height:1.6;color:#78716C;">${d.styleSummary}</p>
+                <p style="margin:0;font-size:13px;line-height:1.6;color:#78716C;font-style:italic;">${d.blendStatement}</p>
               </div>
 
               <!-- Rendering -->

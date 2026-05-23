@@ -10,14 +10,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServiceClient } from "@/lib/supabase";
-import { scoreStage2, buildMoodboardImagePaths } from "@/lib/quiz-scoring";
-import { STAGE_2_QUESTIONS } from "@/lib/quiz-data";
+import { scoreStage2 } from "@/lib/quiz-scoring";
+import { buildWeightedMoodboardPaths, getBlendDescription } from "@/lib/style-matrix";
 import type { QuizAnswers } from "@/lib/quiz-scoring";
-
-/** Convert a relative Cloudinary path to a full secure URL. */
-function toCloudinaryUrl(path: string, cloudName: string): string {
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${path}`;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,15 +30,26 @@ export async function POST(req: NextRequest) {
     // ── Score Stage 2 ──────────────────────────────────────────────────────
     const { primaryFinish, secondaryFinish, finishScores } = scoreStage2(s2Answers);
 
-    // ── Build mood board image URLs directly from quiz answers ─────────────
-    // No Cloudinary API call needed — image paths are embedded in question data.
+    // ── Build weighted mood board image URLs ──────────────────────────────
+    // Uses 60/30/10 weighting (primary / secondary / outdoor anchor).
+    // No Cloudinary API listing calls needed — paths are derived from style codes.
     let moodboardImages: string[] = [];
 
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     if (cloudName) {
-      const imagePaths = buildMoodboardImagePaths(s2Answers, STAGE_2_QUESTIONS);
-      moodboardImages = imagePaths.map((p) => toCloudinaryUrl(p, cloudName));
+      moodboardImages = buildWeightedMoodboardPaths(
+        primaryFinish.code,
+        secondaryFinish.code,
+        cloudName,
+        8,
+      );
     }
+
+    // ── Generate personalized blend statement ─────────────────────────────
+    // We don't have arch codes at this stage, so pass empty strings — the
+    // function falls back gracefully to finish descriptions only.
+    const blendResult = getBlendDescription("", "", primaryFinish.code, secondaryFinish.code);
+    const blendStatement = blendResult.interiorBlend;
 
     // ── Update Supabase ────────────────────────────────────────────────────
     const supabase = createServiceClient();
@@ -84,6 +90,7 @@ export async function POST(req: NextRequest) {
           firstName: session.first_name ?? "There",
           primaryFinishName: primaryFinish.name,
           secondaryFinishName: secondaryFinish.name,
+          blendStatement,
           moodboardImages,
         }),
       });
@@ -111,11 +118,13 @@ function moodboardEmailHtml({
   firstName,
   primaryFinishName,
   secondaryFinishName,
+  blendStatement,
   moodboardImages,
 }: {
   firstName: string;
   primaryFinishName: string;
   secondaryFinishName: string;
+  blendStatement: string;
   moodboardImages: string[];
 }) {
   const imageGrid = moodboardImages.length > 0
@@ -160,8 +169,11 @@ function moodboardEmailHtml({
               <p style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#78716C;">
                 <strong style="color:#3D3226;">Primary direction:</strong> ${primaryFinishName}
               </p>
-              <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#78716C;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#78716C;">
                 <strong style="color:#3D3226;">Supporting influence:</strong> ${secondaryFinishName}
+              </p>
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#78716C;font-style:italic;">
+                ${blendStatement}
               </p>
 
               <!-- Mood board images -->
