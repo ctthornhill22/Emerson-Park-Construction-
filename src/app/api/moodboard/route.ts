@@ -2,16 +2,22 @@
  * POST /api/moodboard
  *
  * Called at Stage 2 gate.
- * Fetches images from Cloudinary folders based on the user's interior style,
- * saves them to Supabase, and sends the mood board email.
+ * Builds mood board image URLs directly from the user's quiz answers (no API
+ * listing calls needed — paths are embedded in the question data), saves them
+ * to Supabase, and sends the mood board email.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { Resend } from "resend";
 import { createServiceClient } from "@/lib/supabase";
-import { scoreStage2, getMoodboardFolders } from "@/lib/quiz-scoring";
+import { scoreStage2, buildMoodboardImagePaths } from "@/lib/quiz-scoring";
+import { STAGE_2_QUESTIONS } from "@/lib/quiz-data";
 import type { QuizAnswers } from "@/lib/quiz-scoring";
+
+/** Convert a relative Cloudinary path to a full secure URL. */
+function toCloudinaryUrl(path: string, cloudName: string): string {
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${path}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,38 +34,15 @@ export async function POST(req: NextRequest) {
 
     // ── Score Stage 2 ──────────────────────────────────────────────────────
     const { primaryFinish, secondaryFinish, finishScores } = scoreStage2(s2Answers);
-    const folders = getMoodboardFolders(primaryFinish.code, secondaryFinish.code);
 
-    // ── Fetch Cloudinary images ────────────────────────────────────────────
+    // ── Build mood board image URLs directly from quiz answers ─────────────
+    // No Cloudinary API call needed — image paths are embedded in question data.
     let moodboardImages: string[] = [];
 
-    if (process.env.CLOUDINARY_API_KEY) {
-      cloudinary.config({
-        cloud_name:  process.env.CLOUDINARY_CLOUD_NAME,
-        api_key:     process.env.CLOUDINARY_API_KEY,
-        api_secret:  process.env.CLOUDINARY_API_SECRET,
-      });
-      try {
-        // Fetch from primary folder (up to 5 images)
-        const primary = await cloudinary.api.resources_by_asset_folder(
-          folders.primary,
-          { max_results: 5, resource_type: "image" }
-        );
-        // Fetch from secondary folder (up to 3 images)
-        const secondary = await cloudinary.api.resources_by_asset_folder(
-          folders.secondary,
-          { max_results: 3, resource_type: "image" }
-        );
-
-        const toUrl = (r: { secure_url: string }) => r.secure_url;
-        moodboardImages = [
-          ...primary.resources.map(toUrl),
-          ...secondary.resources.map(toUrl),
-        ];
-      } catch (cloudErr) {
-        console.error("Cloudinary error:", cloudErr);
-        // Gracefully continue — email sends without images if Cloudinary fails
-      }
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    if (cloudName) {
+      const imagePaths = buildMoodboardImagePaths(s2Answers, STAGE_2_QUESTIONS);
+      moodboardImages = imagePaths.map((p) => toCloudinaryUrl(p, cloudName));
     }
 
     // ── Update Supabase ────────────────────────────────────────────────────

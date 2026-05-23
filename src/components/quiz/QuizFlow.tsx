@@ -448,7 +448,7 @@ function QuestionView({
             ? question.subheading
             : question.type === "single" || question.selectionMode === "single"
             ? "Choose one"
-            : question.type === "multi-limited"
+            : question.maxSelections
             ? `Select up to ${question.maxSelections}`
             : "Select all that apply"}
         </p>
